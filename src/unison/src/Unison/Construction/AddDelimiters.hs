@@ -28,8 +28,8 @@ addDelimiters f@Function {fCode = code} _target =
 addIn (id, b@Block {bCode = code})  = b {bCode = mkIn id [] : code}
 addOut (id, b@Block {bCode = code}) = b {bCode = code ++ [mkOut id []]}
 
-removeEntry b @
-  Block {bAs = as, bCode = (_ : (i@SingleOperation {oId = id}) : rest)}
+removeEntry b@Block
+  {bAs = as, bCode = (_ : (i@SingleOperation {oId = id}) : rest)}
   | isEntry i = b {bAs = as {aEntry = True},
                    bCode = mkIn id (entries i) : rest}
 removeEntry b = b
