@@ -14,7 +14,7 @@ module Unison.Tools.Export (run) where
 
 import Data.Aeson
 import qualified Data.ByteString.Lazy.Char8 as BSL
-import qualified Data.HashMap.Strict as HM
+import qualified Data.Aeson.KeyMap as HM
 import Control.Monad
 import Control.Arrow
 
@@ -85,11 +85,13 @@ parseSolution json =
     let sol          = case decode (BSL.pack json) of
                        Nothing -> error ("error parsing JSON input")
                        Just (Object s) -> s
-        cycles       = sol HM.! "cycles"
-        instructions = sol HM.! "instructions"
-        registers    = sol HM.! "registers"
-        temporaries  = sol HM.! "temporaries"
-        has_sol      = sol HM.! "has_solution"
+        get (Just v) = v
+        get Nothing  = error ("OnUJvG/ydqY9dyuX")
+        cycles       = get (sol HM.!? "cycles")
+        instructions = get (sol HM.!? "instructions")
+        registers    = get (sol HM.!? "registers")
+        temporaries  = get (sol HM.!? "temporaries")
+        has_sol      = get (sol HM.!? "has_solution")
     in if (solutionFromJson has_sol :: Bool) then
            Just (solutionFromJson cycles       :: [Integer],
                  solutionFromJson instructions :: [InstructionId],
