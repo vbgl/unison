@@ -148,7 +148,7 @@ isBound _        = False
 
 isNullableOperand p = isMOperand p && NullTemporary `elem` altTemps p
 
-iSingleInst i @ SingleOperation {}  = oOpr i
+iSingleInst i@SingleOperation {}  = oOpr i
 iSingleInst Bundle {bundleOs = (i:_)} = oOpr i
 iSingleInst _ = error ("unmatched iSingleInst")
 
@@ -296,7 +296,7 @@ isCombineHighOf = isCombUse oCombineHighU
 
 isCombUse :: Eq r => (VirtualOperation r -> Operand r) -> Operand r ->
              BlockOperation i r -> Bool
-isCombUse f t SingleOperation {oOpr = (Virtual i @ Combine {})} = t == (f i)
+isCombUse f t SingleOperation {oOpr = (Virtual i@Combine {})} = t == (f i)
 
 -- TODO: it could also be a virtual copy
 isCopyInstOf f ts i

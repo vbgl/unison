@@ -738,7 +738,7 @@ parseMirBlockRef b =
     Left e -> error ("error parsing block reference in jump table:\n" ++ show e)
     Right br -> br
 
-readTargetOpcode mi @ MachineSingle {
+readTargetOpcode mi@MachineSingle {
                        msOpcode = MachineVirtualOpc (FREE_OPCODE opc)} =
   mi {msOpcode = mkMachineTargetOpc (read opc)}
 readTargetOpcode mi = mi

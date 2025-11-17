@@ -173,7 +173,7 @@ showMachineInstruction v (MachineBundle {mbHead = True, mbInstrs = mis}) =
 showMachineInstruction v (MachineBundle {mbHead = False, mbInstrs = mi:mis}) =
   showInlineMachineSingle v mi ++ showMachineBundleTail v mis
 
-showMachineInstruction v ms @ MachineSingle {} =
+showMachineInstruction v ms@MachineSingle {} =
   showInlineMachineSingle v ms ++ newLine
 
 showInlineMachineSingle v (MachineSingle mopc mps mops) =
@@ -284,7 +284,7 @@ showMachineRegState MachineRegImplicit = "implicit"
 showMachineRegState MachineRegImplicitDefine = "implicit-def"
 showMachineRegState MachineRegUndef = "undef"
 
-maybeEscape ga @ (d:_)
+maybeEscape ga@(d:_)
   | isDigit d = doubleQuoted id ("\\" ++ ga)
 maybeEscape ga = ga
 
