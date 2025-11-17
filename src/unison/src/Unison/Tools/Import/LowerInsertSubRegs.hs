@@ -25,16 +25,16 @@ lowerInsertSubRegs mf target =
                  newId mf
   in mf'
 
-lowerInsertInstrSubRegs stf tid2rc (accIs, id) (mi @
-  MachineSingle {msOperands = [MachineTemp {mtId = did}, _, _, sr]} : is)
+lowerInsertInstrSubRegs stf tid2rc (accIs, id) (mi@MachineSingle
+  {msOperands = [MachineTemp {mtId = did}, _, _, sr]} : is)
   | isMachineInsertSubReg mi =
   let subreg                    = toSubRegIndex sr
       subops                    = stf (tid2rc M.! did) subreg
       (id', mis)                = lowerInsertInstrSubRegs' subops id mi
   in lowerInsertInstrSubRegs stf tid2rc (accIs ++ mis, id') is
 
-lowerInsertInstrSubRegs stf tid2rc (accIs, id) (mi @
-  MachineSingle {msOperands = [d@MachineTemp {mtId = did},
+lowerInsertInstrSubRegs stf tid2rc (accIs, id) (mi@MachineSingle
+  {msOperands = [d@MachineTemp {mtId = did},
                                _,
                                s2@MachineTemp {}, sr]} : is)
   | isMachineSubregToReg mi =

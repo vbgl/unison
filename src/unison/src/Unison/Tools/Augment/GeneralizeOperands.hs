@@ -29,9 +29,7 @@ generalizeOperandsInBlock (id, fcode) b@Block {bCode = code} =
 -- (combine) operations with the same used temporaries must get different
 -- operand identifiers to be able to apply the alignment constraints.
 generalizeOperandsInInstr (id, code)
-  o@SingleOperation {oOpr = Virtual ci @
-                              Combine {oCombineLowU = lu, oCombineHighU = hu,
-                                       oCombineD = d}} =
+  o@SingleOperation {oOpr = Virtual ci@Combine {oCombineLowU = lu, oCombineHighU = hu, oCombineD = d}} =
   let [lu', hu', d'] =
         map (\(pid, t) -> toSingletonChoice pid t) (zip [id..] [lu, hu, d])
       o'  = o {oOpr = Virtual ci {oCombineLowU = lu', oCombineHighU = hu',

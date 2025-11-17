@@ -27,8 +27,8 @@ lowerSubRegVirtuals mf@MachineFunction {} target =
                  newId mf
   in mf'
 
-lowerSubRegVirtual stf tid2rc (accIs, id) (mi @
-  MachineSingle {msOperands = [d@MachineTemp {},
+lowerSubRegVirtual stf tid2rc (accIs, id) (mi@MachineSingle
+  {msOperands = [d@MachineTemp {},
                                s@MachineTemp {mtId = sid}, sr]} : mis)
   | isMachineExtractSubReg mi =
     let srs = stf (tid2rc M.! sid) $ toSubRegIndex sr
@@ -37,8 +37,8 @@ lowerSubRegVirtual stf tid2rc (accIs, id) (mi @
     in lowerSubRegVirtual stf tid2rc (accIs ++ mes, id') mis
 
 -- This assumes that REG_SEQUENCE instructions have power-of-two number of uses
-lowerSubRegVirtual stf tid2rc (accIs, id) (mi @
-  MachineSingle {msOperands = d : us} : mis)
+lowerSubRegVirtual stf tid2rc (accIs, id) (mi@MachineSingle
+  {msOperands = d : us} : mis)
   | isMachineRegSequence mi =
     let rc       = tid2rc M.! (mtId d)
         cs       = [(t, reverse (stf rc (toSubRegIndex sr)))
