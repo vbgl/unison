@@ -16,7 +16,7 @@ import Data.List
 import Data.Ord
 import qualified Data.Map as M
 import Data.Aeson
-import qualified Data.HashMap.Strict as HM
+import qualified Data.Aeson.KeyMap as HM
 
 import Common.Util
 
