@@ -43,7 +43,7 @@ fromFunction bif Function {fCode = code} =
       edges = controlEdges bif code
   in mkGraph nodes edges
 
-toLNode b @ Block {bLab = l} = (fromIntegral l, b)
+toLNode b@Block {bLab = l} = (fromIntegral l, b)
 
 controlEdges bif code =
     let lastBlock = bLab $ last code
@@ -99,7 +99,7 @@ inOps = edgeElemsFrom blockIn
 
 edgeElemsFrom f b bcfg = map edgeElem $ oAllOps (f (label bcfg b))
 
-edgeElem t @ Temporary {} = undoPreAssign t
+edgeElem t@Temporary {} = undoPreAssign t
 edgeElem MOperand {operandId = id} = mkOperandRef id
 edgeElem e = e
 

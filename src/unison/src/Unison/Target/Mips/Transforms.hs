@@ -36,16 +36,16 @@ import Unison.Target.Mips.SpecsGen.MipsRegisterClassDecl
 
 
 rs2ts _ (
-  m @ SingleOperation {
-          oOpr = (Natural mi @ Linear {
+  m@SingleOperation {
+          oOpr = (Natural mi@Linear {
                                    oIs = [TargetInstruction mName],
                                    oDs  = [Register rlo, Register rhi]})}
   :
-  mflo @ SingleOperation {
-          oOpr = (Natural mfloi @ Linear {oIs = [TargetInstruction MFLO]})}
+  mflo@SingleOperation {
+          oOpr = (Natural mfloi@Linear {oIs = [TargetInstruction MFLO]})}
   :
-  mfhi @ SingleOperation {
-          oOpr = (Natural mfhii @ Linear {oIs = [TargetInstruction MFHI]})}
+  mfhi@SingleOperation {
+          oOpr = (Natural mfhii@Linear {oIs = [TargetInstruction MFHI]})}
   :
   rest) (ti, _, _) | mName `elem` [MULT, MULTu] =
   let tlo = mkPreAssignedTemp ti (Register rlo)
@@ -59,13 +59,13 @@ rs2ts _ (
    )
 
 rs2ts _ (
-  m @ SingleOperation {
-        oOpr = (Natural mi @ (Linear {
+  m@SingleOperation {
+        oOpr = (Natural mi@(Linear {
                                  oIs = [TargetInstruction mName],
                                  oDs  = [Register rlo, Register rhi]}))}
   :
-  mfhi @ SingleOperation {
-        oOpr = (Natural mfhii @ Linear {oIs = [TargetInstruction MFHI]})}
+  mfhi@SingleOperation {
+        oOpr = (Natural mfhii@Linear {oIs = [TargetInstruction MFHI]})}
   :
   rest) (ti, _, _) | mName `elem` [MULT, MULTu] =
   let tlo = mkPreAssignedTemp ti (Register rlo)
@@ -78,13 +78,13 @@ rs2ts _ (
    )
 
 rs2ts _ (
-  m @ SingleOperation {
-        oOpr = Natural mi @ (Linear {
+  m@SingleOperation {
+        oOpr = Natural mi@(Linear {
                                 oIs = [TargetInstruction mName],
                                 oDs  = [Register rlo, Register rhi]})}
   :
-  mflo @ SingleOperation {
-        oOpr = Natural mfloi @ (Linear {oIs = [TargetInstruction MFLO]})}
+  mflo@SingleOperation {
+        oOpr = Natural mfloi@(Linear {oIs = [TargetInstruction MFLO]})}
   :
   rest) (ti, _, _) | mName `elem` [MULT, MULTu] =
   let tlo = mkPreAssignedTemp ti (Register rlo)
@@ -97,13 +97,13 @@ rs2ts _ (
    )
 
 rs2ts _ (
-  d @ SingleOperation {
-        oOpr = Natural di @ (Linear {
+  d@SingleOperation {
+        oOpr = Natural di@(Linear {
                                 oIs = [TargetInstruction DIV],
                                 oDs  = [Register rlo, Register rhi]})}
   :
-  mflo @ SingleOperation {
-        oOpr = Natural mfloi @ (Linear {oIs = [TargetInstruction MFLO]})}
+  mflo@SingleOperation {
+        oOpr = Natural mfloi@(Linear {oIs = [TargetInstruction MFLO]})}
   :
   rest) (ti, _, _) =
   let tlo = mkPreAssignedTemp ti (Register rlo)
@@ -125,8 +125,8 @@ rs2ts _ (
     oId = uchoId, oOpr = Virtual (VirtualCopy {oVirtualCopyS = tUchi,
                                                 oVirtualCopyD = Register rhi})}
   :
-  madd @ SingleOperation {
-           oOpr = Natural mi @ (Linear {oIs = [TargetInstruction MADD],
+  madd@SingleOperation {
+           oOpr = Natural mi@(Linear {oIs = [TargetInstruction MADD],
                                          oUs  = [_, _, u1, u2]})}
   :
   SingleOperation {
@@ -156,12 +156,12 @@ rs2ts _ (o : rest) _ = (rest, [o])
 -- | Matches call prologues and pre-assigns a temp to the return address
 
 normalizeCallPrologue _ (
-  c @ SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
   ca1 : ca2 : ca3 : ca4 : ca5
   :
-  j @ SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' && all isVirtualCopy [ca1, ca2, ca3, ca4, ca5] =
   let t = mkTemp ti
@@ -173,12 +173,12 @@ normalizeCallPrologue _ (
     )
 
 normalizeCallPrologue _ (
-  c @ SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
   ca1 : ca2 : ca3 : ca4
   :
-  j @ SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' && all isVirtualCopy [ca1, ca2, ca3, ca4] =
   let t = mkTemp ti
@@ -190,12 +190,12 @@ normalizeCallPrologue _ (
     )
 
 normalizeCallPrologue _ (
-  c @ SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
   ca1 : ca2 : ca3
   :
-  j @ SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' && all isVirtualCopy [ca1, ca2, ca3] =
   let t = mkTemp ti
@@ -207,12 +207,12 @@ normalizeCallPrologue _ (
     )
 
 normalizeCallPrologue _ (
-  c @ SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
   ca1 : ca2
   :
-  j @ SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' && all isVirtualCopy [ca1, ca2] =
   let t = mkTemp ti
@@ -224,12 +224,12 @@ normalizeCallPrologue _ (
     )
 
 normalizeCallPrologue _ (
-  c @ SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
   ca
   :
-  j @ SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' && isVirtualCopy ca =
   let t = mkTemp ti
@@ -241,10 +241,10 @@ normalizeCallPrologue _ (
     )
 
 normalizeCallPrologue _ (
-  c @ SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
-  j @ SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' =
   let t = mkTemp ti
@@ -259,30 +259,30 @@ normalizeCallPrologue _ (o : rest) _ = (rest, [o])
 -- | Matches call epilogues
 
 normalizeCallEpilogue _ (
-  lw @ SingleOperation {
+  lw@SingleOperation {
           oOpr = Natural (Linear {oIs = [TargetInstruction LW],
                                    oUs  = [Bound MachineImm {},
                                            Register (TargetRegister SP)],
                                    oDs  = []})}
   :
-  c1 @ SingleOperation {
+  c1@SingleOperation {
         oOpr = Virtual VirtualCopy {oVirtualCopyS = Register _,
                                     oVirtualCopyD = t}}
   :
-  c2 @ SingleOperation {
+  c2@SingleOperation {
         oOpr = Virtual VirtualCopy {oVirtualCopyS = Register _,
                                     oVirtualCopyD = t'}}
   :
   rest) _ | all isTemporary [t, t'] = (rest, [c1, c2, lw])
 
 normalizeCallEpilogue _ (
-  lw @ SingleOperation {
+  lw@SingleOperation {
           oOpr = Natural (Linear {oIs = [TargetInstruction LW],
                                    oUs  = [Bound MachineImm {},
                                            Register (TargetRegister SP)],
                                    oDs  = []})}
   :
-  c @ SingleOperation {
+  c@SingleOperation {
         oOpr = Virtual VirtualCopy {oVirtualCopyS = Register _,
                                      oVirtualCopyD = t}}
   :
@@ -303,14 +303,14 @@ normalizeCallEpilogue _ (o : rest) _ = (rest, [o])
     -}
 
 extractReturnRegs _ (
-  c @ SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
                                                 oVirtualCopyD = Register ret})}
   :
-  r @ SingleOperation {oOpr = Natural Branch {
+  r@SingleOperation {oOpr = Natural Branch {
                           oBranchIs = [TargetInstruction PseudoReturn]}}
   :
-  o @ SingleOperation {oOpr = Virtual
-                               (Delimiter oi @ (Out {oOuts = [Register ret']}))}
+  o@SingleOperation {oOpr = Virtual
+                               (Delimiter oi@(Out {oOuts = [Register ret']}))}
   :
   rest) (ti, _, _) | ret == ret' =
   let t = mkTemp ti
@@ -325,8 +325,8 @@ extractReturnRegs _ (
 
 extractReturnRegs _ (o : rest) _ = (rest, [o])
 
-hideStackPointer o @ SingleOperation {
-  oOpr = Natural no @ Linear {oIs = [TargetInstruction i], oUs = us}}
+hideStackPointer o@SingleOperation {
+  oOpr = Natural no@Linear {oIs = [TargetInstruction i], oUs = us}}
   | any isStackPointer us =
     let i'  = hiddenStackPointerInstruction i
         us' = filter (not . isStackPointer) us
@@ -342,10 +342,10 @@ isStackPointer = isTargetReg SP
     'splitBlocks' from creating such interferences across block boundaries
     (which would not be solvable by instruction scheduling).
 -}
-coupleAcc64Operations f @ Function {fCode = code} =
+coupleAcc64Operations f@Function {fCode = code} =
   f {fCode = map coupleAcc64OprsInBlock code}
 
-coupleAcc64OprsInBlock b @ Block {bCode = code} =
+coupleAcc64OprsInBlock b@Block {bCode = code} =
   foldl coupleAcc64UsersOf b (filter (isAcc64Instr snd) code)
 
 coupleAcc64UsersOf b d =
@@ -391,9 +391,9 @@ addAlternativeInstructions o
 -}
 
 clobberRAInCall _ (
-  c @ SingleOperation {oOpr = Natural Call {}}
+  c@SingleOperation {oOpr = Natural Call {}}
   :
-  f @ SingleOperation {oOpr = Virtual fi @ (Fun {oFunctionUs = us})}
+  f@SingleOperation {oOpr = Virtual fi @ (Fun {oFunctionUs = us})}
   :
   rest) (tid, oid, _) =
   let t = mkPreAssignedTemp tid (Register (TargetRegister RA))
@@ -408,7 +408,7 @@ clobberRAInCall _ (
 clobberRAInCall _ (o : rest) _ = (rest, [o])
 
 insertGPDisp _ (
-  e @ SingleOperation {oOpr = Virtual (Delimiter (In {oIns = ins}))}
+  e@SingleOperation {oOpr = Virtual (Delimiter (In {oIns = ins}))}
   :
   rest) (_, oid, _)
   | all (\r -> any (isPreAssignedTo r) ins) [T9, V0] =
@@ -425,7 +425,7 @@ isPreAssignedTo r p =
 isTargetReg r (Register (TargetRegister r')) = r == r'
 isTargetReg _ _ = False
 
-markBarriers o @ SingleOperation {
+markBarriers o@SingleOperation {
     oOpr = Natural (Linear {oIs = [TargetInstruction i]}), oAs = as}
   | isBarrierInstr i = o {oAs = as {aReads = [], aWrites = [ControlSideEffect]}}
 markBarriers o = o
@@ -437,8 +437,8 @@ markBarriers o = o
 -}
 
 enforceMandatoryFrame f (
-  a @ SingleOperation {
-     oOpr = (Natural ai @ Linear {oIs = [_, TargetInstruction i]})}
+  a@SingleOperation {
+     oOpr = (Natural ai@Linear {oIs = [_, TargetInstruction i]})}
   :
   rest) _ | i `elem` [ADDiu_sp, ADDiu_negsp] &&
             any isCall (flatCode f) &&
@@ -452,8 +452,8 @@ enforceMandatoryFrame _ (o : rest) _ = (rest, [o])
 
 cleanClobbers f = mapToOperation cleanClobber f
 
-cleanClobber o @ SingleOperation {}
+cleanClobber o@SingleOperation {}
   | isClobberRA o = cleanClobber (mkBundle [o])
   | otherwise = o
-cleanClobber o @ Bundle {bundleOs = os} =
+cleanClobber o@Bundle {bundleOs = os} =
   o {bundleOs = filter (not . isClobberRA) os}

@@ -22,7 +22,7 @@ import qualified Unison.Graphs.CG as CG
 
 import Unison.Analysis.TemporaryType
 
-assignRegisters tight registers f @ Function {fCode = code} target =
+assignRegisters tight registers f@Function {fCode = code} target =
     let oif   = operandInfo target
         fCode = flatten code
         ra    = mkRegisterArray target 0
@@ -44,7 +44,7 @@ toRegOrNull aw2r aw =
   Just r -> r
   Nothing -> error ("no register could be found corresponding to the (atom, width) combination " ++ show aw)
 
-applyMapToChoice k2t tc @ MOperand {altTemps = ts} =
+applyMapToChoice k2t tc@MOperand {altTemps = ts} =
     tc {altTemps = map (applyMap' k2t) ts}
 
 applyMap' _ NullTemporary = NullTemporary

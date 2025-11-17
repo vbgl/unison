@@ -19,7 +19,7 @@ import Unison.Target.API
 import qualified Unison.Graphs.BCFG as BCFG
 import qualified Unison.Graphs.SG as SG
 
-normalizeCongruences f @ Function {fCongruences = cs} target =
+normalizeCongruences f@Function {fCongruences = cs} target =
     let bif     = branchInfo target
         bcfg   = BCFG.fromFunction bif f
         sg     = SG.fromCongruences cs

@@ -137,7 +137,7 @@ consistentInstrOperandInfo oif o =
     concatMap (consistentOprInsOperandInfo oif o) (oInstructions o)
 
 consistentOprInsOperandInfo _ _ (General NullInstruction) = []
-consistentOprInsOperandInfo oif o @ SingleOperation {oId = id}
+consistentOprInsOperandInfo oif o@SingleOperation {oId = id}
                           (TargetInstruction i) =
     let (uoi, doi) = oif i
         result     = consistentOperandGroupInfo (oUses o) uoi ++
@@ -187,7 +187,7 @@ consistentInstrOperands oif wInfo i =
     concatMap (consistentInstrOpOperands oif wInfo i) (oInstructions i)
 
 consistentInstrOpOperands _ _ _ (General NullInstruction) = []
-consistentInstrOpOperands oif wInfo i @ SingleOperation {oId = id}
+consistentInstrOpOperands oif wInfo i@SingleOperation {oId = id}
                           (TargetInstruction op) =
     let (uoi, doi) = oif op
         result     = consistentOperandGroup (oUses i) wInfo uoi ++
@@ -270,7 +270,7 @@ noInterferences o2p id os =
         header = "in delimiter o" ++ show id ++ ", the following operands are congruent: "
     in map (showProblem "noEdgeInterferences" . (header ++) . show) groups
 
-noMustConflicts f @ Function {fCode = code} target =
+noMustConflicts f@Function {fCode = code} target =
     let apf = alignedPairs target
         ra  = mkRegisterArray target 0
         ovf = regOverlap (regAtoms ra)
@@ -483,7 +483,7 @@ noEmptyRegClassOpr rf oif (TargetInstruction op) =
 
 noEmptyRC _ InfiniteRegisterClass {} = Nothing
 noEmptyRC _ AbstractRegisterClass {} = Nothing
-noEmptyRC rf rc @ RegisterClass {} =
+noEmptyRC rf rc@RegisterClass {} =
   case rf rc of
     [] -> Just (showProblem "noEmptyRegClass"
                 (show rc ++ " is empty"))
@@ -499,7 +499,7 @@ allOprRegClassesReal oif o
      concatMap (allOprInsRegClassesReal oif o) (oInstructions o)
 
 allOprInsRegClassesReal _ _ (General NullInstruction) = []
-allOprInsRegClassesReal oif o @ SingleOperation {oId = id} (TargetInstruction i) =
+allOprInsRegClassesReal oif o@SingleOperation {oId = id} (TargetInstruction i) =
     let (uoi, doi) = oif i
         result     = mapMaybe regClassReal
                      (zip (oUses o) uoi ++ zip (oDefs o) doi)
@@ -518,7 +518,7 @@ noEmptyBlock f _ =
      testAllElements testOneIn (fCode f) ++
      testAllElements testOneOut (fCode f)
 
-testOneIn b @ Block {bLab = bid, bCode = code} =
+testOneIn b@Block {bLab = bid, bCode = code} =
   case filter isIn code of
     [o] | not (isIn $ blockIn b) ->
       Just ("operation o" ++ show (oId o) ++
@@ -527,7 +527,7 @@ testOneIn b @ Block {bLab = bid, bCode = code} =
     ins -> Just ("b" ++ show bid ++ " has " ++ show (length ins) ++
                  " (in) operations")
 
-testOneOut b @ Block {bLab = bid, bCode = code} =
+testOneOut b@Block {bLab = bid, bCode = code} =
   case filter isOut code of
     [o] | not (isOut $ blockOut b) ->
       Just ("operation o" ++ show (oId o) ++

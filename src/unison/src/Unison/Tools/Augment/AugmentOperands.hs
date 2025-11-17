@@ -23,12 +23,12 @@ import qualified Unison.Graphs.CG as CG
 import Unison.Graphs.Util
 import Unison.Graphs.ThirdParty
 
-augmentOperands noCross oldModel f @ Function {fCode = code} target =
+augmentOperands noCross oldModel f@Function {fCode = code} target =
     let atf   = alternativeTemps target
         code' = map (augmentOperandsInBlock atf noCross oldModel) code
     in f {fCode = code'}
 
-augmentOperandsInBlock atf noCross oldModel b @ Block {bCode = code} =
+augmentOperandsInBlock atf noCross oldModel b@Block {bCode = code} =
   let cg    = mkCopyGraph code
       code' = map (augmentOperandsInOpr atf noCross oldModel code cg) code
   in b {bCode = code'}
@@ -38,7 +38,7 @@ augmentOperandsInOpr atf noCross oldModel code cg o =
         nf = if oldModel then id else maybeAddNullTemp o
     in mapToEachDef nf o'
 
-augmentOperand atf noCross oldModel code cg o p @ MOperand {altTemps = [t]} =
+augmentOperand atf noCross oldModel code cg o p@MOperand {altTemps = [t]} =
   let cs   = componentsOf cg
       tId  = CG.toNodeId t
       cg'  = fromJust $ find (\g -> tId `elem` nodes g) cs
@@ -53,7 +53,7 @@ augmentOperand atf noCross oldModel code cg o p @ MOperand {altTemps = [t]} =
 
 augmentOperand _ _ _ _ _ _ u = u
 
-maybeAddNullTemp o p @ MOperand {altTemps = ts}
+maybeAddNullTemp o p@MOperand {altTemps = ts}
   | nullable o = p {altTemps = mkNullTemp : ts}
 maybeAddNullTemp _ p = p
 

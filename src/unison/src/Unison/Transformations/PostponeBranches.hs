@@ -16,11 +16,11 @@ import Unison.Base
 import Unison.Util
 import Unison.Predicates
 
-postponeBranches f @ Function {fCode = code} _target =
+postponeBranches f@Function {fCode = code} _target =
     let code' = map postponeBranchesInBlock code
     in f {fCode = code'}
 
-postponeBranchesInBlock b @ Block {bCode = code} =
+postponeBranchesInBlock b@Block {bCode = code} =
   let isTerm = isTerminator code
       b1 = moveOperations isTerm before isOut b
       b2 = if any (isTailCallFun code) code

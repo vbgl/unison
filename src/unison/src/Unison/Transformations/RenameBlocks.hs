@@ -19,7 +19,7 @@ import Common.Util
 import Unison.Constructors
 import Unison.Predicates
 
-renameBlocks f @ Function {fCode = code, fJumpTable = (k, jtes)} _target =
+renameBlocks f@Function {fCode = code, fJumpTable = (k, jtes)} _target =
   let ids     = zip (map bLab code) [0..]
       idmap   = applyMap $ M.fromList ids
       code'   = map (renameBlock idmap) code
@@ -28,7 +28,7 @@ renameBlocks f @ Function {fCode = code, fJumpTable = (k, jtes)} _target =
       jtes'   = map (renameBlockIdInTableEntry idmap) jtes
   in f {fCode = code''', fJumpTable = (k, jtes')}
 
-renameBlock idmap b @ Block {bLab = l} = b {bLab = idmap l}
+renameBlock idmap b@Block {bLab = l} = b {bLab = idmap l}
 
 applyMapToBRefOperands = mapToOperandIf isBlockRef . replaceBlockRef
 
@@ -36,5 +36,5 @@ applyMapToJTBlocks idmap = mapToAttrJTBlocks (map idmap)
 
 replaceBlockRef idmap (BlockRef l) = mkBlockRef (idmap l)
 
-renameBlockIdInTableEntry idmap e @ JumpTableEntry {jtBlocks = bids} =
+renameBlockIdInTableEntry idmap e@JumpTableEntry {jtBlocks = bids} =
   e {jtBlocks = map idmap bids}

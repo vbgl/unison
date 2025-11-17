@@ -13,11 +13,11 @@ module Unison.Tools.Analyze.InsertFuns (insertFuns) where
 
 import Unison
 
-insertFuns f @ Function {fCode = code} _target =
+insertFuns f@Function {fCode = code} _target =
     let code' = map insertFunsInBlock code
     in f {fCode = code'}
 
-insertFunsInBlock b @ Block {bCode = code} =
+insertFunsInBlock b@Block {bCode = code} =
   let code' = insertFun code
   in b {bCode = code'}
 

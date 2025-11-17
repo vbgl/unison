@@ -20,7 +20,7 @@ import Unison.Target.API
 import qualified Unison.Graphs.BCFG as BCFG
 import qualified Unison.Graphs.ICFG as ICFG
 
-sourceLiveIns f @ Function {fCode = code, fCongruences = cs,
+sourceLiveIns f@Function {fCode = code, fCongruences = cs,
                             fRematerializable = rts} target =
     let bif      = branchInfo target
         icfg     = (ICFG.fromBCFG . BCFG.fromFunction bif) f
@@ -32,7 +32,7 @@ sourceLiveIns f @ Function {fCode = code, fCongruences = cs,
         rts'     = nub $ rts ++ newRts
     in f {fCode = code', fCongruences = cs', fRematerializable = rts'}
 
-srcLiveIns icfg (i, codeSame) b @ Block {bLab = l, bCode = code} =
+srcLiveIns icfg (i, codeSame) b@Block {bLab = l, bCode = code} =
   let ts          = nub (sort (tUses code))
       -- We do not need to consider all temporaries defined in dominant blocks,
       -- since the sinkLiveOuts transformation has taken care of that.

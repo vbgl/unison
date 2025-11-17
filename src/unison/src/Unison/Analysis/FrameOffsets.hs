@@ -40,4 +40,4 @@ frameSize objs =
   let occ = slotSet objs
   in if S.null occ then 0 else S.findMax occ + 1
 
-reoffset delta fo @ FrameObject {foOffset = off} = fo {foOffset = off + delta}
+reoffset delta fo@FrameObject {foOffset = off} = fo {foOffset = off + delta}

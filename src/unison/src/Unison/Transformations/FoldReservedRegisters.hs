@@ -29,10 +29,10 @@ foldResRegAssignment rf f (o : rest) _ =
       o'    = mapToOperandIf (isReservedTemp rf fcode) (foldTempReg fcode) o
   in (rest, [o'])
 
-isReservedTemp rf fcode t @ Temporary {} =
+isReservedTemp rf fcode t@Temporary {} =
   case definer t fcode of
     SingleOperation {
-      oOpr = Virtual (VirtualCopy {oVirtualCopyS = r @ Register {}})}
+      oOpr = Virtual (VirtualCopy {oVirtualCopyS = r@Register {}})}
       | isReservedReg rf r -> True
     _ ->  False
 isReservedTemp _ _ _ = False

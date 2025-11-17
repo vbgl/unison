@@ -16,7 +16,7 @@ import Data.Maybe
 
 import Unison
 
-addDataCongruences f @ Function {fCode = code, fCongruences = cs} _target =
+addDataCongruences f@Function {fCode = code, fCongruences = cs} _target =
   let dataCs = concatMap blockDataCongruences code
       cs'    = cs ++ dataCs
       cs''   = sort cs'

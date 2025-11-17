@@ -19,7 +19,7 @@ import Unison.Analysis.FrameOffsets
 -- This pass computes the offsets for the variable ("free") frame objects
 -- and shifts all offsets according to the stack pointer offset.
 
-computeFrameOffsets f @ Function {fFixedStackFrame = fobjs, fStackFrame = objs,
+computeFrameOffsets f@Function {fFixedStackFrame = fobjs, fStackFrame = objs,
                                   fStackPointerOffset = off} _ =
   let (_, objs') = mapAccumL allocateObject (slotSet fobjs) objs
       fobjs'   = map (reoffset (- off)) fobjs

@@ -62,8 +62,8 @@ extendWithCopies f target =
 
 -- | Extends the block temporaries given by the function ft with copies
 extendBB rtmap vc ft rf cf t2rs
-  (ti, (f @ Function {fCode = accCode, fCongruences = cs}, id))
-  b @ Block {bCode = code} =
+  (ti, (f@Function {fCode = accCode, fCongruences = cs}, id))
+  b@Block {bCode = code} =
   let (ids, itf)                = ft code
       init                      = (ti, code, [], id, t2rs)
       (ti', code', irs, id', _) = foldl
@@ -173,7 +173,7 @@ undefT = mkTemp (-1)
 
 -- | Gives a map from a temporary to a list of registers such that either that
 -- temporary or a congruent one must be placed in the register(s)
-mkMustRegistersMap f @ Function {fCode = code} =
+mkMustRegistersMap f@Function {fCode = code} =
     let must   = preAssignments code
         mMap   = combineMustsByTemp must
         sg     = SG.fromFunction Nothing f
@@ -202,7 +202,7 @@ replaceTemp t2rs (oldT, newT)
         t2rs'' = M.update (Just . nub . (++) oldRs) newT t2rs'
     in t2rs''
 
-mkRematTempMap rif f @ Function {fRematerializable = rts} =
+mkRematTempMap rif f@Function {fRematerializable = rts} =
   let fcode = flatCode f
   in M.fromList (mapMaybe (toRematTemp rif fcode) rts)
 
@@ -213,7 +213,7 @@ toRematTemp rif fcode (t, oids) =
       ris  = catMaybes [rif i | TargetInstruction i <- oInstructions $ head os]
   in if null ris then Nothing else Just (t, (os, ris))
 
-updateRematOrigins rif f @ Function {fCode = code} =
+updateRematOrigins rif f@Function {fCode = code} =
   let os = S.fromList $ mapMaybe (aRematOrigin . oAs) $ flatten code
       f' = mapToOperation (addDematerialize rif os) f
   in f' {fRematerializable = []}

@@ -74,7 +74,7 @@ transitivePreAssignments bcfg sg rt f t =
    Nothing -> []
    Just ts ->
      let ros  = concat
-                [[(r, o) | t @ Temporary {tReg = Just r }
+                [[(r, o) | t@Temporary {tReg = Just r }
                            <- oAllOps o, t `elem` ts] | o <- flatCode f]
          b    = tBlockLab f t
          ros1 = [(r, o) | (r, o) <- ros,

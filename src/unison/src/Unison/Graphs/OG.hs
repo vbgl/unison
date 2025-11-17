@@ -50,7 +50,7 @@ mkDataFlowEdges ops = concatMap (mkInstrDataFlowEdges ops)
 
 mkInstrDataFlowEdges ops i = concatMap (mkUseEdges ops) (oDefOperands i)
 
-mkUseEdges ops p @ MOperand {altTemps = ts} =
+mkUseEdges ops p@MOperand {altTemps = ts} =
   let [t] = filter (not . isNullTemporary) ts
   in [mkEdge (DataFlowEdge t) p q | q <- ops, t `elem` altTemps q, p /= q]
 

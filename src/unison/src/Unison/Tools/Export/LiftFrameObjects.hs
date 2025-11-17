@@ -24,7 +24,7 @@ import MachineIR
 -- This pass lifts frame objects created by spilling to the list of fixed
 -- stack frame objects.
 
-liftFrameObjects f @ Function {fCode = code, fFixedStackFrame = fobjs} _target =
+liftFrameObjects f@Function {fCode = code, fFixedStackFrame = fobjs} _target =
   let mobjs  = nub $ concatMap machineFrameObjects $ flatten code
       gobjs  = groupBy overlap $ sortBy (comparing mfoAtoms) mobjs
       fstIdx = newFrameIndex fobjs

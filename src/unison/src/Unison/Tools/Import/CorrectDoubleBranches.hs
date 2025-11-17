@@ -22,13 +22,13 @@ import Unison.Target.API
 import qualified Unison.Graphs.BCFG as BCFG
 import Unison.Graphs.Util
 
-correctDoubleBranches f @ Function {fCode = code} target =
+correctDoubleBranches f@Function {fCode = code} target =
     let bif   = branchInfo target
         bcfg  = BCFG.fromFunction bif f
         code' = map (correctDoubleBranchesInBlock bcfg) code
     in f {fCode = code'}
 
-correctDoubleBranchesInBlock bcfg b @ Block {bLab = l, bCode = code}
+correctDoubleBranchesInBlock bcfg b@Block {bLab = l, bCode = code}
   | hasLoopPhis b && not (isLoop bcfg (BCFG.toNode l)) =
     let [p]    = immediatePredsAndSuccs bcfg l
         labMap = M.fromList [(mkBlockRef l, mkBlockRef p)]

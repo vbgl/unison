@@ -18,7 +18,7 @@ import qualified Data.Map as M
 
 import Unison
 
-splitBlocks maxBlockSize f @ Function {fCode = code} _target =
+splitBlocks maxBlockSize f@Function {fCode = code} _target =
   let bid     = newBlockIndex code
       oid     = newId code
       ((_, _, lastB),
@@ -26,7 +26,7 @@ splitBlocks maxBlockSize f @ Function {fCode = code} _target =
       code'   = mapToOperationInBlocks (applyToPhiOps (applyMap lastB)) (concat bs)
   in f {fCode = code'}
 
-splitBlock maxSize acc b @ Block {bCode = code} =
+splitBlock maxSize acc b@Block {bCode = code} =
   let last     = toInteger $ length code - 3
       (_, ps)  = mapAccumL splittable Splittable (zip [0..] code)
       possible = concat (init ps)
@@ -87,17 +87,17 @@ splitIntoBlocks lengths (bid, oid, lastB)
       lastB' = M.insert l (bLab $ last bs8) lastB
   in ((bid', oid', lastB'), bs8)
 
-addIn (oid, b @ Block {bCode = code})
+addIn (oid, b@Block {bCode = code})
   | any isIn code = b
   | otherwise     = b {bCode = mkIn oid [] : code}
 
-addOut (oid, b @ Block {bCode = code})
+addOut (oid, b@Block {bCode = code})
   | any isOut code = b
   | otherwise      = b {bCode = code ++ [mkOut oid []]}
 
 mkNewBlock (bid, code) = mkBlock bid mkNullBlockAttributes code
 
-copyBlockAttrs srcAttrs afs b @ Block {bAs = dstAttrs} =
+copyBlockAttrs srcAttrs afs b@Block {bAs = dstAttrs} =
   b {bAs = foldl (copyBlockAttr srcAttrs) dstAttrs afs}
 
 copyBlockAttr srcAttrs dstAttrs (af, cf) = cf dstAttrs (af srcAttrs)
@@ -113,4 +113,4 @@ applyToPhiOps lastB o
 
 replaceBlockRef lastB (BlockRef l) = mkBlockRef (lastB l)
 
-addSplit b @ Block {bAs = attrs} = b {bAs = attrs {aSplit = True}}
+addSplit b@Block {bAs = attrs} = b {bAs = attrs {aSplit = True}}

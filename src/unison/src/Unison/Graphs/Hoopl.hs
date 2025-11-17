@@ -60,7 +60,7 @@ toHGraph bif Function {fCode = code} =
     in g'
 
 -- | Block to Hoopl block
-toHBlock bid sf bl @ (Block {bLab = l, bCode = code}) =
+toHBlock bid sf bl@(Block {bLab = l, bCode = code}) =
     let (sr, b, sk) = decompose code
         hSuccs      = map labelToHLabel (sort $ sf bl) ++ [labelToHLabel bid]
         src         = HIn (labelToHLabel l) sr

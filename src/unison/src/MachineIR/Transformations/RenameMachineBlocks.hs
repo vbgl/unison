@@ -17,7 +17,7 @@ import qualified Data.Map as M
 import Common.Util
 import MachineIR
 
-renameMachineBlocks mf @ MachineFunction {mfBlocks = code} _target =
+renameMachineBlocks mf@MachineFunction {mfBlocks = code} _target =
   let ids = zip (map mbId code) [0..]
       idf = applyMap $ M.fromList ids
       mf' = mapToMachineBlockId always idf mf

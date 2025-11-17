@@ -39,7 +39,7 @@ addRematerialization f target =
         f''   = foldl (addRemat p2cts) f rts''
     in f''
 
-basicForm f @ Function {fCode = code, fCongruences = cs} =
+basicForm f@Function {fCode = code, fCongruences = cs} =
     let code1 = map filterMandatory code
         p2t   = M.fromList $ concatMap operandToTemp code1
         code2 = map (mapToOperationInBlock (mapToModelOperand (applyOpMap p2t)))
@@ -47,13 +47,13 @@ basicForm f @ Function {fCode = code, fCongruences = cs} =
         cs1   = sort (map (mapTuple (applyOpMap p2t)) cs)
     in f {fCode = code2, fCongruences = cs1}
 
-filterMandatory b @ Block {bCode = code} =
+filterMandatory b@Block {bCode = code} =
     let code1 = filter isMandatory code
         ts    = map undoPreAssign $ concatMap defTemps code1
         code2 = map (mapToModelOperand (filterTemps ts)) code1
     in b {bCode = code2}
 
-filterTemps ts p @ MOperand {altTemps = ts'} = p {altTemps = intersect ts' ts}
+filterTemps ts p@MOperand {altTemps = ts'} = p {altTemps = intersect ts' ts}
 
 useTemps = concat . map extractTemps . oUses
 defTemps = concat . map extractTemps . oDefs
@@ -83,7 +83,7 @@ isUsefulRematInOpr code (t, _) o
   | isPotentialUser t o && not (isFirstRealUser code t o) = True
   | otherwise = False
 
-addRemat p2cts f @ Function {fCode = code} rt @ (t, _) =
+addRemat p2cts f@Function {fCode = code} rt @ (t, _) =
     let fcode = flatten code
         ids   = (newOprIndex fcode, newOperIndex fcode, newTempIndex fcode)
         -- add rematerialization operations for each use
@@ -93,7 +93,7 @@ addRemat p2cts f @ Function {fCode = code} rt @ (t, _) =
         f'    = f {fCode = code'''}
     in f'
 
-addRematToBlock rt ids b @ Block {bCode = code} =
+addRematToBlock rt ids b@Block {bCode = code} =
     let ((ids', _), code') =
           mapAccumL (maybeAddRematToOpr code rt) (ids, []) code
     in (ids', b {bCode = concat code'})
@@ -133,7 +133,7 @@ nullifyOperands p2cts (t:ts, code) =
         code'' = foldl nullifyOutOperands code' cts'
     in (ts ++ cts', code'')
 
-nullifyDefOperandsInBlock p2cts t b @ Block {bCode = code} =
+nullifyDefOperandsInBlock p2cts t b@Block {bCode = code} =
   let (ts, code') = unzip $ map (nullifyDefOperandsInOpr code p2cts t) code
   in (concat ts, b {bCode = code'})
 
@@ -155,7 +155,7 @@ nullifyDefOperandsInOpr code p2cts t o
 
 nullifyOutOperands code t = map (nullifyOutOperandsInBlock t) code
 
-nullifyOutOperandsInBlock t b @ Block {bCode = code} =
+nullifyOutOperandsInBlock t b@Block {bCode = code} =
   let u = blockOut b
   in if isPotentialUser t u then
        let code' = nullifyOperandOf (oId u) t code
@@ -169,7 +169,7 @@ nullifyOperand t p
   | isRealConnection t p = addNullTemp p
   | otherwise = p
 
-isRealConnection t p @ MOperand {altTemps = ts} =
+isRealConnection t p@MOperand {altTemps = ts} =
     t `elem` ts && not (isNullableOperand p)
 
 codeOperands f = concatMap oAllOperands (flatCode f)

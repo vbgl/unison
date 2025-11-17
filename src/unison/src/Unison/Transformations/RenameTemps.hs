@@ -25,7 +25,7 @@ renameTemps f _target =
 
 sortAltTempsInOpr = mapToOperandIf isMOperand sortAltTemps
 
-sortAltTemps p @ MOperand {altTemps = ts} = p {altTemps = sortBy compareTs ts}
+sortAltTemps p@MOperand {altTemps = ts} = p {altTemps = sortBy compareTs ts}
 
 compareTs t t'
     | isNullTemporary t && isNullTemporary t' = EQ

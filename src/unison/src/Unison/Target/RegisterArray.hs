@@ -42,7 +42,7 @@ import Unison.Target.Query
 data RegSpace = RegSpace RegisterSpaceName deriving (Eq, Show, Ord)
 
 -- | Computes a finite set of registers to represent an infinite register class
-mkInfiniteRegisters (rcuf, rcbf) (Just inf) rc @ (InfiniteRegisterClass trc) =
+mkInfiniteRegisters (rcuf, rcbf) (Just inf) rc@(InfiniteRegisterClass trc) =
     let inf'     = case rcbf rc of
                      Nothing -> inf
                      (Just bound) -> min bound inf
@@ -165,8 +165,8 @@ mkRegisterArray target inf =
       }
 
 expandRegClass (era, _, _, _, _) TopRegisterClass = era
-expandRegClass (_, rf, _, _, _) rc @ RegisterClass {} = rf rc
-expandRegClass (_, _, rcuf, rcbf, inf) rc @ InfiniteRegisterClass {} =
+expandRegClass (_, rf, _, _, _) rc@RegisterClass {} = rf rc
+expandRegClass (_, _, rcuf, rcbf, inf) rc@InfiniteRegisterClass {} =
     mkInfiniteRegisters (rcuf, rcbf) (Just inf) rc
 expandRegClass _  AbstractRegisterClass {} = []
 

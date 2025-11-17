@@ -15,7 +15,7 @@ import qualified Data.Set as S
 
 import Unison
 
-cleanAttributes f @ Function {fCode = code} _target =
+cleanAttributes f@Function {fCode = code} _target =
     let insts = S.fromList $ concatMap oInstructions (flatten code)
         f'    = mapToOperation (cleanActivators insts) f
     in f'

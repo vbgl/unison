@@ -14,7 +14,7 @@ module Unison.Tools.Import.LiftUndefRegs (liftUndefRegs) where
 import Data.List
 import Unison
 
-liftUndefRegs f @ Function {fCode = code} _target =
+liftUndefRegs f@Function {fCode = code} _target =
     let code' = mapToEntryBlock (appendToIn (orphans $ flatten code)) code
     in f {fCode = code'}
 

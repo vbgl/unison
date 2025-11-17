@@ -19,6 +19,6 @@ import MachineIR
 dropDebugLocations mf _target =
     mapToMachineInstruction dropDebugLocationsInInstr mf
 
-dropDebugLocationsInInstr mi @ MachineSingle {msOperands = mos} =
+dropDebugLocationsInInstr mi@MachineSingle {msOperands = mos} =
   let mos'  = filter (not . isMachineDebugLocation) mos
   in mi {msOperands = mos'}

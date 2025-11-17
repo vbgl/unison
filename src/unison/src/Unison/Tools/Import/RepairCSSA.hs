@@ -34,7 +34,7 @@ import Unison.Transformations.PropagatePhiCongruences
 
 repairCSSA :: (Ord i, Show i, Ord r, Show r) =>
               Function i r -> TargetWithOptions i r rc s -> Function i r
-repairCSSA f @ Function {fCode = code} target =
+repairCSSA f@Function {fCode = code} target =
     let bcfg          = BCFG.fromFunction (branchInfo target) f
         phiInsts      = sort $ filter isPhi (flatten code)
         phiCongrClass = mkPhiCongruenceMap phiInsts :: Partition TemporaryId
@@ -253,7 +253,7 @@ liveTemporaries f target =
       liveOut = M.fromList [(b, lOut) | (b, (_, lOut)) <- M.toList b2ts']
   in (liveIn, liveOut)
 
-promoteDelimiters b2ts b @ Block {bLab = l} =
+promoteDelimiters b2ts b@Block {bLab = l} =
   let (tIn, tOut) = b2ts M.! l
       tIn'        = S.union tIn (toSimpleTemps $ oDefs $ blockIn b)
       tOut'       = S.union tOut (toSimpleTemps $ oUses $ blockOut b)

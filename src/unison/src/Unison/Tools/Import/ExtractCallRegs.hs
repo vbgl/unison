@@ -20,7 +20,7 @@ import Unison
 import Unison.Target.API
 import Unison.Target.RegisterArray
 
-extractCallRegs f @ Function {fCode = code} target =
+extractCallRegs f@Function {fCode = code} target =
     let ra  = mkRegisterArray target 0
         rr  = map (mkRegister . mkTargetRegister) $ reserved target
         rs  = nub $ concatMap (raRegisters ra) (raRcs ra)

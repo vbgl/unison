@@ -33,13 +33,13 @@ prepareForEmission mirVersion mf target =
   in mf3
 
 addBlockSuccessor (itf, bif, oif, fts, lastId)
-  mb @ MachineBlock {mbProperties = mbps} =
+  mb@MachineBlock {mbProperties = mbps} =
   let succs = blockSuccessor itf bif oif fts lastId mb
       mbps' = mbps ++ [mkMachineBlockPropertySuccs (zip succs [1..])]
   in mb {mbProperties = mbps'}
 
 addDefs oif
-  ms @ MachineSingle {msOpcode = opc, msOperands = ops, msProperties = ps} =
+  ms@MachineSingle {msOpcode = opc, msOperands = ops, msProperties = ps} =
       case find isMachineInstructionPropertyDefs ps of
         Nothing ->
             let (_, ds) = splitMachineOperands oif opc ops

@@ -18,7 +18,7 @@ import Common.Util
 import Unison.Base
 import Unison.Util
 
-renameOperations f @ Function {fCode = code, fRematerializable = rts} _target =
+renameOperations f@Function {fCode = code, fRematerializable = rts} _target =
     let idMap = M.fromList (zip (map oId (flatten code)) [0..])
         code' = mapToOperationInBlocks (mapToOperationId (applyMap idMap)) code
         rts'  = map (second (map (applyMap idMap))) rts

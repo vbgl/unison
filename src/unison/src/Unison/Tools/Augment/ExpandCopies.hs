@@ -17,14 +17,14 @@ import Data.Maybe
 import Unison
 import Unison.Target.API
 
-expandCopies f @ Function {fCode = code} target =
+expandCopies f@Function {fCode = code} target =
     let ecf        = expandCopy target
         fcode      = flatten code
         ids        = (newOprIndex fcode, newOperIndex fcode, newTempIndex fcode)
         (_, code') = mapAccumL (expandCopiesInBlock ecf) ids code
     in f {fCode = code'}
 
-expandCopiesInBlock ecf ids b @ Block {bCode = code} =
+expandCopiesInBlock ecf ids b@Block {bCode = code} =
   let cs    = filter isCopy code
       (code', ids') = foldl (doExpandCopy (ecf b)) (code, ids) (map oId cs)
   in (ids', b {bCode = code'})
@@ -44,7 +44,7 @@ doExpandCopy ecf (code, ids) cid =
 
 copyDefinition = fromSingleton . extractTemps . copyDestination
 
-replaceTemp t ts p @ MOperand {altTemps = ats} =
+replaceTemp t ts p@MOperand {altTemps = ats} =
   let ats' = concatMap (\t' -> if t' == t then ts else [t']) ats
   in p {altTemps = ats'}
 

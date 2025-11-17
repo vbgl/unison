@@ -19,7 +19,7 @@ import Unison.Target.API
 import Unison.Graphs.Hoopl
 import Unison.Graphs.Hoopl.Liveness
 
-sinkLiveOuts f @ Function {fCode = code} target =
+sinkLiveOuts f@Function {fCode = code} target =
     let bif    = branchInfo target
         cfg   = toHGraph bif f
         b2ts  = liveTemps cfg
@@ -27,5 +27,5 @@ sinkLiveOuts f @ Function {fCode = code} target =
     in f {fCode = code'}
 
 -- | Sink each temporary defined in a block that is live out
-sinkLiveOutsInBlock s2ts b @ Block {bLab = l, bCode = code} =
+sinkLiveOutsInBlock s2ts b@Block {bLab = l, bCode = code} =
     b {bCode = addToOut (S.toList $ snd $ s2ts M.! l) code}

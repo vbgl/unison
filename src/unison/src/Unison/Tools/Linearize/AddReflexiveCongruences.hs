@@ -19,7 +19,7 @@ import Unison.Target.API
 import Unison.Graphs.BCFG
 import Unison.Graphs.Util
 
-addReflexiveCongruences f @ Function {fCode = code, fCongruences = cs} target =
+addReflexiveCongruences f@Function {fCode = code, fCongruences = cs} target =
     let bcfg = fromFunction (branchInfo target) f
         cs'  = reflexiveCongruenceTuples bcfg code
         cs'' = sort $ cs ++ cs'

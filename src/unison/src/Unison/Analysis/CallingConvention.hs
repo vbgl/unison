@@ -24,7 +24,7 @@ import Unison.Constructors
 import qualified Unison.Graphs.SG as SG
 
 -- | Gives a set of callee-saved temporaries
-calleeSavedTemps csf ovf f @ Function {fCode = code} =
+calleeSavedTemps csf ovf f@Function {fCode = code} =
   let fCode = flatten code
       sg    = SG.fromFunction Nothing f
       sp    = SG.sameTempPartitions sg

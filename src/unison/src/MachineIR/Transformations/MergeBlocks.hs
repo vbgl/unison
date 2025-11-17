@@ -19,7 +19,7 @@ import Unison.Target.API
 import MachineIR
 
 mergeBlocks onlySplits
-  mf @ MachineFunction {mfBlocks = mbs, mfProperties = mps} target =
+  mf@MachineFunction {mfBlocks = mbs, mfProperties = mps} target =
   let itf = instructionType target
       oif = operandInfo target
       bif = branchInfo target
@@ -32,8 +32,8 @@ mergeBlocks onlySplits
   in mf'
 
 doMergeBlocks onlySplits itf rbs
-  (mb1 @ MachineBlock {mbInstructions = mis1, mbProperties = mps1} :
-   mb2 @ MachineBlock {mbId = id2, mbInstructions = mis2, mbProperties = mps2} :
+  (mb1@MachineBlock {mbInstructions = mis1, mbProperties = mps1} :
+   mb2@MachineBlock {mbId = id2, mbInstructions = mis2, mbProperties = mps2} :
    mbs)
   | none (isMachineBranch itf) mis1 && S.notMember id2 rbs &&
     (not onlySplits || (onlySplits && any isMachineBlockPropertySplit mps2)) =
@@ -49,7 +49,7 @@ doMergeBlocks _ _ _ [] = []
 
 branchTargets fs MachineBundle {mbInstrs = mis} =
   concatMap (branchTargets fs) mis
-branchTargets (itf, oif, bif) mi @ MachineSingle {}
+branchTargets (itf, oif, bif) mi@MachineSingle {}
   | isMachineBranch itf mi =
       let o = fromMachineInstruction itf oif (-1, mi)
       in case bif o of

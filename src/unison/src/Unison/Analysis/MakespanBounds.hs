@@ -33,7 +33,7 @@ maxInstructionLatency targetFs o
         maximum $ mapMaybe (worst targetFs o) (oInstructions o)
 
 worst _ _ (General NullInstruction) = Nothing
-worst (rm, oif, deps) o ti @ (TargetInstruction i) =
+worst (rm, oif, deps) o ti@(TargetInstruction i) =
     let maxDur     = maxOrZero $ map (occupation . usage) (iUsages rm ti)
         useLats    = operandLats $ fst $ oif i
         defLats    = operandLats $ snd $ oif i

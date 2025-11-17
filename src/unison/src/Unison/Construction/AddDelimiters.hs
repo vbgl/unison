@@ -17,7 +17,7 @@ import Unison.Constructors
 import Unison.Predicates
 import Unison.Instances()
 
-addDelimiters f @ Function {fCode = code} _target =
+addDelimiters f@Function {fCode = code} _target =
   let id      = newId code
       code'   = zipWith (curry addOut) [id..] code
       id'     = newId code'
@@ -25,18 +25,18 @@ addDelimiters f @ Function {fCode = code} _target =
       code''' = map (removeExit . removeEntry) code''
   in f {fCode = code'''}
 
-addIn (id, b @ Block {bCode = code})  = b {bCode = mkIn id [] : code}
-addOut (id, b @ Block {bCode = code}) = b {bCode = code ++ [mkOut id []]}
+addIn (id, b@Block {bCode = code})  = b {bCode = mkIn id [] : code}
+addOut (id, b@Block {bCode = code}) = b {bCode = code ++ [mkOut id []]}
 
 removeEntry b @
-  Block {bAs = as, bCode = (_ : (i @ SingleOperation {oId = id}) : rest)}
+  Block {bAs = as, bCode = (_ : (i@SingleOperation {oId = id}) : rest)}
   | isEntry i = b {bAs = as {aEntry = True},
                    bCode = mkIn id (entries i) : rest}
 removeEntry b = b
 
-removeExit b @ Block {bAs = as, bCode = code} =
+removeExit b@Block {bAs = as, bCode = code} =
   case last (init code) of
-    ei @ SingleOperation {} | isExit ei || isReturn ei ->
+    ei@SingleOperation {} | isExit ei || isReturn ei ->
       (let code'                          = init code
            SingleOperation {oId = id} = last code
        in b {bAs = as {aExit = True, aReturn = isReturn ei},

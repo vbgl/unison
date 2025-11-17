@@ -19,9 +19,9 @@ import Unison
 
 relocateDefines f _target = fixpoint relocateDefine f
 
-relocateDefine f @ Function {fCode = code}
+relocateDefine f@Function {fCode = code}
     | Nothing <- findRelocatableDefine code = f
-relocateDefine f @ Function {fCode = code} =
+relocateDefine f@Function {fCode = code} =
     let (Just d) = findRelocatableDefine code
         u        = singleUser d (flatten code)
         code'    = moveGloballyOperation d before (isIdOf u) code

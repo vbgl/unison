@@ -18,7 +18,7 @@ import qualified Data.Map as M
 import Common.Util
 import Unison
 
-simplifyCombinations f @ Function {fCode = code1}  _target =
+simplifyCombinations f@Function {fCode = code1}  _target =
     let code2 = fixpoint (foldSimplifyCombines f) code1
         code3 = map (fixpoint (simplifyExtract LowType)) code2
         code4 = map (fixpoint (simplifyExtract HighType)) code3
@@ -109,7 +109,7 @@ into:
   ?
 -}
 
-simplifyExtract eType b @ Block {bCode = code}
+simplifyExtract eType b@Block {bCode = code}
     | none (isSimplifiable (isOfType eType) code) code = b
     | otherwise =
       let isExtr = isOfType eType
@@ -233,4 +233,4 @@ isFactorizableExtract fcode t =
 
 insertInCodeWhen w f os code =
   [b {bCode = if any f bcode then insertWhen w f os bcode else bcode}
-  | b @ Block {bCode = bcode} <- code]
+  | b@Block {bCode = bcode} <- code]

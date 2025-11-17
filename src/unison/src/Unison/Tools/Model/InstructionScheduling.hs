@@ -28,7 +28,7 @@ import Unison.Analysis.MakespanBounds
 
 import Unison.Tools.Model.Definitions
 
-parameters scaleFreq (_, _, deps, _, ra, _) f @ Function {fCode = code} target =
+parameters scaleFreq (_, _, deps, _, ra, _) f@Function {fCode = code} target =
   let oif           = operandInfo target
       cf            = constraints target
       rm            = resourceManager target
@@ -251,15 +251,15 @@ lowerConstraintExpr fs (XorExpr e1 e2) =
 lowerConstraintExpr fs (ImpliesExpr e1 e2) =
   ImpliesExpr (lowerConstraintExpr fs e1) (lowerConstraintExpr fs e2)
 lowerConstraintExpr fs (NotExpr e) = NotExpr (lowerConstraintExpr fs e)
-lowerConstraintExpr _ e @ ActiveExpr {} = e
-lowerConstraintExpr _ e @ ConnectsExpr {} = e
+lowerConstraintExpr _ e@ActiveExpr {} = e
+lowerConstraintExpr _ e@ConnectsExpr {} = e
 lowerConstraintExpr (im, _) (ImplementsExpr oid i) =
   EImplementsExpr oid (toIndexedInstruction im i)
-lowerConstraintExpr _ e @ DistanceExpr {} = e
-lowerConstraintExpr _ e @ ShareExpr {} = e
-lowerConstraintExpr _ e @ OperandOverlapExpr {} = e
-lowerConstraintExpr _ e @ TemporaryOverlapExpr {} = e
-lowerConstraintExpr _ e @ CallerSavedExpr {} = e
+lowerConstraintExpr _ e@DistanceExpr {} = e
+lowerConstraintExpr _ e@ShareExpr {} = e
+lowerConstraintExpr _ e@OperandOverlapExpr {} = e
+lowerConstraintExpr _ e@TemporaryOverlapExpr {} = e
+lowerConstraintExpr _ e@CallerSavedExpr {} = e
 lowerConstraintExpr (_, ra) (AllocatedExpr pid rc) =
   EAllocatedExpr pid (raIndexedRc ra rc)
-lowerConstraintExpr _ e @ AlignedExpr {} = e
+lowerConstraintExpr _ e@AlignedExpr {} = e

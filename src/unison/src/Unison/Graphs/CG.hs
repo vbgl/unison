@@ -39,7 +39,7 @@ fromFunction Function {fCode = code, fCongruences = cs} =
   in mkGraph nodes edges
 
 fromBlock :: Ord r => Block i r -> [CongruenceTuple r] -> CGraph i r
-fromBlock b @ Block {bCode = code} cs =
+fromBlock b@Block {bCode = code} cs =
   let ts  = S.fromList $ tUniqueOps code
       bcs = [(t, t') | (t, t') <- cs, S.member t ts && S.member t' ts]
   in fromFunction (mkFunction [b] bcs [] [] [] 0 0 [] ("", []) [] [] "")
@@ -71,32 +71,32 @@ mkLEdgesFromSGes bts (ts, ts') =
 toCEdge bts t t' =
   (toNodeId t, toNodeId t', CongruenceEdge (S.member t bts && S.member t' bts))
 
-mkLEdges bi @ SingleOperation
+mkLEdges bi@SingleOperation
     {oOpr = Virtual Combine {oCombineLowU = lu, oCombineHighU = hu,
                               oCombineD = d}} =
       mkEdges (CombineEdge bi) lu d ++ mkEdges (CombineEdge bi) hu d
 
-mkLEdges bi @ SingleOperation {oOpr = Virtual Low {oLowU = u, oLowD = d}} =
+mkLEdges bi@SingleOperation {oOpr = Virtual Low {oLowU = u, oLowD = d}} =
     mkEdges (LowEdge bi) u d
 
-mkLEdges bi @ SingleOperation {oOpr = Virtual High {oHighU = u, oHighD = d}} =
+mkLEdges bi@SingleOperation {oOpr = Virtual High {oHighU = u, oHighD = d}} =
     mkEdges (HighEdge bi) u d
 
-mkLEdges bi @ SingleOperation {
+mkLEdges bi@SingleOperation {
   oOpr = Virtual Split2 {oSplit2U = u, oSplit2LowD = ld, oSplit2HighD = hd}} =
     concatMap (mkEdges (SplitEdge bi) u) [ld, hd]
 
-mkLEdges bi @ SingleOperation {
+mkLEdges bi@SingleOperation {
   oOpr = Virtual Split4 {oSplit4U = u, oSplit4LowLowD = lld,
                          oSplit4LowHighD = lhd, oSplit4HighLowD = hld,
                          oSplit4HighHighD = hhd}} =
     concatMap (mkEdges (SplitEdge bi) u) [lld, lhd, hld, hhd]
 
-mkLEdges po @ SingleOperation {oOpr = Virtual Phi {oPhiD = d}} =
+mkLEdges po@SingleOperation {oOpr = Virtual Phi {oPhiD = d}} =
     let us' = map fst (phiUses po)
     in concat [mkEdges (CopyEdge po) u d | u <- us']
 
-findOperand _ t @ Temporary {} = t
+findOperand _ t@Temporary {} = t
 findOperand code (OperandRef p) =
   let i  = fromJust $ find (refersTo p) code
       tc = fromJust $ find (isChoiceId p) (oAllOps i)

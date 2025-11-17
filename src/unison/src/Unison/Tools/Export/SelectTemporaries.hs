@@ -16,7 +16,7 @@ import qualified Data.Map as M
 
 import Unison
 
-selectTemporaries temporaries f @ Function {fCode = code} _target =
+selectTemporaries temporaries f@Function {fCode = code} _target =
     let t2r   = M.fromList $ [(mkTemp t, r) | (Temporary t (Just r))
                                                 <- uniqueTemps (flatten code)]
         p2t   = M.fromList $ zip (map mkOperandRef [0..]) temporaries

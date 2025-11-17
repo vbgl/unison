@@ -225,20 +225,20 @@ mapToOperandIf ::  OperandPredicate r -> OperandMap r -> BlockOperation i r -> B
 mapToOperandIf p f = mapToOperands (mapIf p f) (mapIf p f)
 
 applyToBlock :: BlockOperationsMap i r -> [Block i r] -> BlockId -> [Block i r]
-applyToBlock f (b @ Block {bLab = l', bCode = code} : bs) l
+applyToBlock f (b@Block {bLab = l', bCode = code} : bs) l
     | l == l'   = b {bCode = f code} : bs
     | otherwise = b : applyToBlock f bs l
 
 filterBlock :: BlockOperationPredicate i r -> Block i r -> Block i r
-filterBlock f b @ Block {bCode = os} =
+filterBlock f b@Block {bCode = os} =
   b {bCode = concatMap (filterOperation f) os}
 
 filterOperation :: BlockOperationPredicate i r -> BlockOperation i r -> [BlockOperation i r]
-filterOperation f o @ Bundle {bundleOs = os} =
+filterOperation f o@Bundle {bundleOs = os} =
   case filter f os of
     []  -> []
     os' -> [o {bundleOs = os'}]
-filterOperation f o @ SingleOperation {} = filter f [o]
+filterOperation f o@SingleOperation {} = filter f [o]
 
 -- | Predicate on a block operation
 type BlockOperationPredicate i r = (BlockOperation i r -> Bool)
@@ -250,11 +250,11 @@ filterCode = map . filterBlock
 type OperationIdMap = (OperationId -> OperationId)
 
 mapToOperationId :: OperationIdMap -> BlockOperation i r -> BlockOperation i r
-mapToOperationId f i @ (SingleOperation {oId = id, oAs = as}) =
+mapToOperationId f i@(SingleOperation {oId = id, oAs = as}) =
   i {oId = f id, oAs = mapToOperationIdInAttributes f as}
 
 mapToOperationIdInAttributes f
-  as @ Attributes {aCall = id1, aRematOrigin = ro} =
+  as@Attributes {aCall = id1, aRematOrigin = ro} =
     as {aCall = fmap f id1, aRematOrigin = fmap f ro}
 
 mapToModelOperand :: OperandMap r -> BlockOperation i r -> BlockOperation i r
@@ -265,20 +265,20 @@ applyMapToOperands :: Ord r => M.Map (Operand r) (Operand r) ->
 applyMapToOperands = mapToOperandIf always . applyMap
 
 applyTempIdMap :: M.Map TemporaryId TemporaryId -> Operand r -> Operand r
-applyTempIdMap tMap t @ MOperand {altTemps = ts} =
+applyTempIdMap tMap t@MOperand {altTemps = ts} =
   t {altTemps = map (applyTempIdMap tMap) ts}
-applyTempIdMap tMap t @ Temporary {tId = old} =
+applyTempIdMap tMap t@Temporary {tId = old} =
   case M.lookup old tMap of
     Nothing -> t
     Just id -> t {tId = id}
 applyTempIdMap _ o = o
 
 applyMOperandIdMap :: M.Map MoperandId MoperandId -> Operand r -> Operand r
-applyMOperandIdMap tMap p @ MOperand {operandId = old} =
+applyMOperandIdMap tMap p@MOperand {operandId = old} =
   case M.lookup old tMap of
     Nothing -> p
     Just id -> p {operandId = id}
-applyMOperandIdMap tMap p @ (OperandRef old) =
+applyMOperandIdMap tMap p@(OperandRef old) =
   case M.lookup old tMap of
     Nothing -> p
     Just id -> mkOperandRef id
@@ -287,7 +287,7 @@ applyMOperandIdMap _ o = o
 renameOperands :: Ord r => ([BlockOperation i r] -> [Integer]) ->
                   (M.Map Integer Integer -> Operand r -> Operand r) ->
                   Function i r -> Function i r
-renameOperands o r f @ Function {fCode = code, fCongruences = cs,
+renameOperands o r f@Function {fCode = code, fCongruences = cs,
                                  fRematerializable = rts} =
   let o2n   = M.fromList (zip (nub $ o $ flatten code) [0..])
       rf    = r o2n
@@ -298,56 +298,56 @@ renameOperands o r f @ Function {fCode = code, fCongruences = cs,
 
 mapToReads :: ([RWObject r] -> [RWObject r]) -> BlockOperation i r ->
               BlockOperation i r
-mapToReads f o @ SingleOperation {
-               oAs = as @ Attributes {aReads = reads}} =
+mapToReads f o@SingleOperation {
+               oAs = as@Attributes {aReads = reads}} =
   o {oAs = as {aReads = f reads}}
 
 mapToWrites :: ([RWObject r] -> [RWObject r]) -> BlockOperation i r ->
                BlockOperation i r
-mapToWrites f o @ SingleOperation {
-               oAs = as @ Attributes {aWrites = writes}} =
+mapToWrites f o@SingleOperation {
+               oAs = as@Attributes {aWrites = writes}} =
   o {oAs = as {aWrites = f writes}}
 
 mapToAttrCall :: (Maybe OperationId -> Maybe OperationId) ->
                  BlockOperation i r -> BlockOperation i r
-mapToAttrCall f o @ SingleOperation {
-  oAs = as @ Attributes {aCall = call}} = o {oAs = as {aCall = f call}}
+mapToAttrCall f o@SingleOperation {
+  oAs = as@Attributes {aCall = call}} = o {oAs = as {aCall = f call}}
 
 mapToAttrMem :: (Maybe Integer -> Maybe Integer) ->
                  BlockOperation i r -> BlockOperation i r
-mapToAttrMem f o @ SingleOperation {
-  oAs = as @ Attributes {aMem = mem}} = o {oAs = as {aMem = f mem}}
+mapToAttrMem f o@SingleOperation {
+  oAs = as@Attributes {aMem = mem}} = o {oAs = as {aMem = f mem}}
 
 mapToActivators :: InstructionsMap i -> BlockOperation i r -> BlockOperation i r
-mapToActivators f o @ SingleOperation {
-               oAs = as @ Attributes {aActivators = insts}} =
+mapToActivators f o@SingleOperation {
+               oAs = as@Attributes {aActivators = insts}} =
   o {oAs = as {aActivators = f insts}}
 
 mapToAttrVirtualCopy :: (Bool -> Bool) -> BlockOperation i r -> BlockOperation i r
-mapToAttrVirtualCopy f o @ SingleOperation {
-               oAs = as @ Attributes {aVirtualCopy = vc}} =
+mapToAttrVirtualCopy f o@SingleOperation {
+               oAs = as@Attributes {aVirtualCopy = vc}} =
   o {oAs = as {aVirtualCopy = f vc}}
 
 mapToAttrRemat :: (Bool -> Bool) -> BlockOperation i r -> BlockOperation i r
-mapToAttrRemat f o @ SingleOperation {
-               oAs = as @ Attributes {aRemat = rm}} =
+mapToAttrRemat f o@SingleOperation {
+               oAs = as@Attributes {aRemat = rm}} =
   o {oAs = as {aRemat = f rm}}
 
 mapToAttrJTBlocks :: ([BlockId] -> [BlockId]) -> BlockOperation i r -> BlockOperation i r
-mapToAttrJTBlocks f o @ SingleOperation {
-               oAs = as @ Attributes {aJTBlocks = bs}} =
+mapToAttrJTBlocks f o@SingleOperation {
+               oAs = as@Attributes {aJTBlocks = bs}} =
   o {oAs = as {aJTBlocks = f bs}}
 
 mapToAttrRematOrigin ::  (Maybe OperationId -> Maybe OperationId) ->
                           BlockOperation i r -> BlockOperation i r
-mapToAttrRematOrigin f o @ SingleOperation {
-  oAs = as @ Attributes {aRematOrigin = ro}} =
+mapToAttrRematOrigin f o@SingleOperation {
+  oAs = as@Attributes {aRematOrigin = ro}} =
   o {oAs = as {aRematOrigin = f ro}}
 
 mapToAttrSplitBarrier :: (Bool -> Bool) -> BlockOperation i r ->
                          BlockOperation i r
-mapToAttrSplitBarrier f o @ SingleOperation {
-  oAs = as @ Attributes {aSplitBarrier = sb}} =
+mapToAttrSplitBarrier f o@SingleOperation {
+  oAs = as@Attributes {aSplitBarrier = sb}} =
   o {oAs = as {aSplitBarrier = f sb}}
 
 isTailCallFun :: [BlockOperation i r] -> BlockOperation i r -> Bool
@@ -365,7 +365,7 @@ callOf SingleOperation {oAs = Attributes {aCall = Just c}}
 -- | Gives the successor blocks
 blockSucc :: (BlockOperation i r -> Maybe BranchInfo) -> BlockId -> Block i r ->
              [BlockId]
-blockSucc bif lastBB b @ Block {bLab = l, bCode = code}
+blockSucc bif lastBB b@Block {bLab = l, bCode = code}
   | isExitBlock b = []
   | otherwise =
     (case find isBranch (concatMap linearizeOpr code) of
@@ -405,7 +405,7 @@ findBlock code l = findBy l bLab code
 
 addLongLifeRegs :: Ord r => ([Block i r] -> [BlockId]) -> [Operand r] ->
                    Function i r -> Function i r
-addLongLifeRegs bf regs f @ Function {fCode = code} =
+addLongLifeRegs bf regs f@Function {fCode = code} =
   let delimiterOps f code b = oAllOps $ f $ findBlock code b
       inOperands  = delimiterOps blockIn
       outOperands = delimiterOps blockOut
@@ -442,7 +442,7 @@ blockFreq ::  Block i r -> Frequency
 blockFreq = fromJust . aFreq . bAs
 
 updateBlockFreq :: (Frequency, Block i r) -> Block i r
-updateBlockFreq (freq, b @ Block {bAs = attrs}) =
+updateBlockFreq (freq, b@Block {bAs = attrs}) =
   b {bAs = (attrs {aFreq = Just freq})}
 
 normalize ::  Integral b => [b] -> [b]
@@ -461,93 +461,93 @@ sortOperands us ds = mapToOperands (concatAndSort us) (concatAndSort ds)
 type OperandsMap r = ([Operand r] -> [Operand r])
 
 mapToOperands :: OperandsMap r -> OperandsMap r -> BlockOperation i r -> BlockOperation i r
-mapToOperands f g bi @ SingleOperation {oOpr = o} =
+mapToOperands f g bi@SingleOperation {oOpr = o} =
   bi {oOpr = mapToOprOperands f g o}
-mapToOperands f g bu @ Bundle {bundleOs = os} =
+mapToOperands f g bu@Bundle {bundleOs = os} =
   bu {bundleOs = map (mapToOperands f g) os}
 
 mapToOprOperands :: OperandsMap r -> OperandsMap r -> Operation i r -> Operation i r
 mapToOprOperands f g (Natural o) = Natural (mapToNaturalOprOperands f g o)
 mapToOprOperands f g (Virtual o) = Virtual (mapToVirtualOprOperands f g o)
-mapToOprOperands f g o @ Copy {oCopyS = u, oCopyUs = us, oCopyD = d, oCopyDs = ds} =
+mapToOprOperands f g o@Copy {oCopyS = u, oCopyUs = us, oCopyD = d, oCopyDs = ds} =
   o {oCopyS = mapSingle f u, oCopyUs = f us, oCopyD = mapSingle g d, oCopyDs = g ds}
 
 mapToNaturalOprOperands :: OperandsMap r -> OperandsMap r -> NaturalOperation i r -> NaturalOperation i r
-mapToNaturalOprOperands f g o @ Linear {oUs = us, oDs = ds} =
+mapToNaturalOprOperands f g o@Linear {oUs = us, oDs = ds} =
   o {oUs = f us, oDs = g ds}
-mapToNaturalOprOperands f _ o @ Branch {oBranchUs = us} = o {oBranchUs = f us}
-mapToNaturalOprOperands f _ o @ Call {oCallUs = cUs} = o {oCallUs = f cUs}
-mapToNaturalOprOperands f _ o @ TailCall {oTailCallUs = tcUs} =
+mapToNaturalOprOperands f _ o@Branch {oBranchUs = us} = o {oBranchUs = f us}
+mapToNaturalOprOperands f _ o@Call {oCallUs = cUs} = o {oCallUs = f cUs}
+mapToNaturalOprOperands f _ o@TailCall {oTailCallUs = tcUs} =
   o {oTailCallUs = f tcUs}
 
 mapToVirtualOprOperands :: OperandsMap r -> OperandsMap r -> VirtualOperation r -> VirtualOperation r
-mapToVirtualOprOperands f g o @ Phi {oPhiUs = us, oPhiD = d} =
+mapToVirtualOprOperands f g o@Phi {oPhiUs = us, oPhiD = d} =
   o {oPhiUs = f us, oPhiD = mapSingle g d}
 mapToVirtualOprOperands f g (Delimiter o) =
   Delimiter (mapToDelimiterOprOperands f g o)
-mapToVirtualOprOperands f _ o @ Kill {oKillUs = us} = o {oKillUs = f us}
-mapToVirtualOprOperands _ g o @ Define {oDefineDs = ds} = o {oDefineDs = g ds}
-mapToVirtualOprOperands f g o @ Combine {oCombineLowU = lu, oCombineHighU = hu,
+mapToVirtualOprOperands f _ o@Kill {oKillUs = us} = o {oKillUs = f us}
+mapToVirtualOprOperands _ g o@Define {oDefineDs = ds} = o {oDefineDs = g ds}
+mapToVirtualOprOperands f g o@Combine {oCombineLowU = lu, oCombineHighU = hu,
                                           oCombineD = d} =
   o {oCombineLowU  = mapSingle f lu,
      oCombineHighU = mapSingle f hu,
      oCombineD     = mapSingle g d}
-mapToVirtualOprOperands f g o @ Low {oLowU = u, oLowD = d} =
+mapToVirtualOprOperands f g o@Low {oLowU = u, oLowD = d} =
   o {oLowU = mapSingle f u, oLowD = mapSingle g d}
-mapToVirtualOprOperands f g o @ High {oHighU = u, oHighD = d} =
+mapToVirtualOprOperands f g o@High {oHighU = u, oHighD = d} =
   o {oHighU = mapSingle f u, oHighD = mapSingle g d}
-mapToVirtualOprOperands f g o @ Split2 {oSplit2U = u, oSplit2LowD = ld,
+mapToVirtualOprOperands f g o@Split2 {oSplit2U = u, oSplit2LowD = ld,
                                         oSplit2HighD = hd} =
   o {oSplit2U = mapSingle f u,
      oSplit2LowD = mapSingle g ld, oSplit2HighD = mapSingle g hd}
-mapToVirtualOprOperands f g o @ Split4 {
+mapToVirtualOprOperands f g o@Split4 {
   oSplit4U = u, oSplit4LowLowD = lld, oSplit4LowHighD = lhd,
   oSplit4HighLowD = hld, oSplit4HighHighD = hhd} =
   o {oSplit4U = mapSingle f u, oSplit4LowLowD = mapSingle g lld,
      oSplit4LowHighD = mapSingle g lhd, oSplit4HighLowD = mapSingle g hld,
      oSplit4HighHighD = mapSingle g hhd}
 mapToVirtualOprOperands f g
-  o @ VirtualCopy {oVirtualCopyS = u, oVirtualCopyD = d} =
+  o@VirtualCopy {oVirtualCopyS = u, oVirtualCopyD = d} =
   o {oVirtualCopyS = mapSingle f u, oVirtualCopyD = mapSingle g d}
-mapToVirtualOprOperands f g o @ Fun {oFunctionUs = us, oFunctionDs = ds} =
+mapToVirtualOprOperands f g o@Fun {oFunctionUs = us, oFunctionDs = ds} =
   o {oFunctionUs = f us, oFunctionDs = g ds}
 mapToVirtualOprOperands f g (Frame o) = Frame (mapToFrameOprOperands f g o)
 
 mapToDelimiterOprOperands :: OperandsMap r -> OperandsMap r -> DelimiterOperation r -> DelimiterOperation r
-mapToDelimiterOprOperands _ g o @ In {oIns = ds} = o {oIns = g ds}
-mapToDelimiterOprOperands f _ o @ Out {oOuts = us} = o {oOuts = f us}
-mapToDelimiterOprOperands _ g o @ Entry {oEntry = ds} = o {oEntry = g ds}
-mapToDelimiterOprOperands f _ o @ Return {oReturn = us} = o {oReturn = f us}
-mapToDelimiterOprOperands _ _ o @ Exit {} = o
+mapToDelimiterOprOperands _ g o@In {oIns = ds} = o {oIns = g ds}
+mapToDelimiterOprOperands f _ o@Out {oOuts = us} = o {oOuts = f us}
+mapToDelimiterOprOperands _ g o@Entry {oEntry = ds} = o {oEntry = g ds}
+mapToDelimiterOprOperands f _ o@Return {oReturn = us} = o {oReturn = f us}
+mapToDelimiterOprOperands _ _ o@Exit {} = o
 
 mapToFrameOprOperands :: OperandsMap r -> OperandsMap r -> FrameOperation r -> FrameOperation r
-mapToFrameOprOperands f _ o @ Setup {oSetupU = u} = o {oSetupU = mapSingle f u}
-mapToFrameOprOperands f _ o @ Destroy {oDestroyU = u} =
+mapToFrameOprOperands f _ o@Setup {oSetupU = u} = o {oSetupU = mapSingle f u}
+mapToFrameOprOperands f _ o@Destroy {oDestroyU = u} =
     o {oDestroyU = mapSingle f u}
 
 -- | Function that maps to a list of instructions
 type InstructionsMap i = ([Instruction i] -> [Instruction i])
 
 mapToInstructions :: InstructionsMap i -> BlockOperation i r -> BlockOperation i r
-mapToInstructions f bi @ SingleOperation {oOpr = o} =
+mapToInstructions f bi@SingleOperation {oOpr = o} =
   bi {oOpr = mapToOprInstructions f o}
 
 mapToOprInstructions :: InstructionsMap i -> Operation i r -> Operation i r
 mapToOprInstructions f (Natural o) = Natural (mapToNaturalOprInstructions f o)
-mapToOprInstructions f o @ Copy {oCopyIs = is} = o {oCopyIs = f is}
+mapToOprInstructions f o@Copy {oCopyIs = is} = o {oCopyIs = f is}
 mapToOprInstructions f (Virtual o) =
     Virtual (mapToVirtualOprInstructions f o)
 
 mapToNaturalOprInstructions :: InstructionsMap i -> NaturalOperation i r -> NaturalOperation i r
-mapToNaturalOprInstructions f o @ Linear {oIs = is} = o {oIs = f is}
-mapToNaturalOprInstructions f o @ Branch {oBranchIs = is} = o {oBranchIs = f is}
-mapToNaturalOprInstructions f o @ Call {oCallIs = is} = o {oCallIs = f is}
-mapToNaturalOprInstructions f o @ TailCall {oTailCallIs = is} = o {oTailCallIs = f is}
+mapToNaturalOprInstructions f o@Linear {oIs = is} = o {oIs = f is}
+mapToNaturalOprInstructions f o@Branch {oBranchIs = is} = o {oBranchIs = f is}
+mapToNaturalOprInstructions f o@Call {oCallIs = is} = o {oCallIs = f is}
+mapToNaturalOprInstructions f o@TailCall {oTailCallIs = is} = o {oTailCallIs = f is}
 
 mapToVirtualOprInstructions :: InstructionsMap i -> VirtualOperation r -> VirtualOperation r
-mapToVirtualOprInstructions f o @ Kill {oKillIs = is} = o {oKillIs = applyToGeneral f is}
-mapToVirtualOprInstructions f o @ Low {oLowIs = is} = o {oLowIs = applyToGeneral f is}
-mapToVirtualOprInstructions f o @ High {oHighIs = is} = o {oHighIs = applyToGeneral f is}
+mapToVirtualOprInstructions f o@Kill {oKillIs = is} = o {oKillIs = applyToGeneral f is}
+mapToVirtualOprInstructions f o@Low {oLowIs = is} = o {oLowIs = applyToGeneral f is}
+mapToVirtualOprInstructions f o@High {oHighIs = is} = o {oHighIs = applyToGeneral f is}
 mapToVirtualOprInstructions _ o = o
 
 applyToGeneral :: InstructionsMap i -> [GeneralInstruction] -> [GeneralInstruction]
@@ -568,7 +568,7 @@ mapToEntryBlock ::  BlockOperationsMap i r -> [Block i r] -> [Block i r]
 mapToEntryBlock f = mapIf isEntryBlock (applyToBlockCode f)
 
 applyToBlockCode :: BlockOperationsMap i r -> Block i r -> Block i r
-applyToBlockCode f b @ Block {bCode = code} = b {bCode = f code}
+applyToBlockCode f b@Block {bCode = code} = b {bCode = f code}
 
 addToIn :: Ord r => [Operand r] -> [BlockOperation i r] -> [BlockOperation i r]
 addToIn = mapToIn addNewOperands
@@ -673,7 +673,7 @@ oTemps = concatMap extractTemps . oAllOps
 oDefTemps = concatMap extractTemps . oDefs
 
 extractTemps ::  Operand r -> [Operand r]
-extractTemps t @ Temporary {} = [t]
+extractTemps t@Temporary {} = [t]
 extractTemps MOperand {altTemps = ts, operandReg = r} =
   let ts' = filter (not . isNullTemporary) ts
   in case r of
@@ -702,7 +702,7 @@ after = keepDelimsR
 moveOperations :: Eq i => Eq r => BlockOperationPredicate i r ->
                   BlockPosition i r -> BlockOperationPredicate i r ->
                   Block i r -> Block i r
-moveOperations isCandidate relPos isTargetInst b @ Block {bCode = code}
+moveOperations isCandidate relPos isTargetInst b@Block {bCode = code}
     | not (any isCandidate code) = b
     | otherwise =
       let candidates = filter isCandidate (reverse code)
@@ -725,7 +725,7 @@ moveGloballyOperation o w f code =
 
 insertOperationInBlock :: BlockPosition i r -> BlockOperationPredicate i r ->
                           BlockOperation i r -> Block i r -> Block i r
-insertOperationInBlock w f o b @ Block {bCode = code} =
+insertOperationInBlock w f o b@Block {bCode = code} =
     let code' = if any f code then insertWhen w f [o] code else code
     in b {bCode = code'}
 
@@ -808,7 +808,7 @@ preAssignBlockTemps pas b = b {bCode = map (preAssignOprTemps pas) (bCode b)}
 
 preAssignOprTemps :: Ord r => M.Map OperationId [(Operand r, Operand r)] ->
                      BlockOperation i r -> BlockOperation i r
-preAssignOprTemps pas o @ SingleOperation {oId = id} =
+preAssignOprTemps pas o@SingleOperation {oId = id} =
     case M.lookup id pas of
       Nothing -> o
       Just ps -> mapToModelOperand (preAssignWith (M.fromList ps)) o
@@ -824,13 +824,13 @@ preAssign ::  Operand r -> Operand r -> Operand r
 preAssign t r = t {tReg = Just r}
 
 undoPreAssign :: Operand r -> Operand r
-undoPreAssign t @ Temporary {} = t {tReg = Nothing}
-undoPreAssign t @ MOperand {}  = t {operandReg = Nothing}
+undoPreAssign t@Temporary {} = t {tReg = Nothing}
+undoPreAssign t@MOperand {}  = t {operandReg = Nothing}
 
 preAssignment :: Operand r -> Maybe (Operand r)
 preAssignment Temporary {tReg = r}      = r
 preAssignment MOperand {operandReg = r} = r
-preAssignment r @ Register {} = Just r
+preAssignment r@Register {} = Just r
 preAssignment _ = Nothing
 
 preAssignments :: [Block i r] -> [PreAssignTuple r]
@@ -868,11 +868,11 @@ isAugmented ::  Function i r -> Bool
 isAugmented f = any (any isMOperand . oAllOps) $ flatCode f
 
 mapToOperation :: BlockOperationMap i r -> Function i r -> Function i r
-mapToOperation f (fun @ Function {fCode = code}) =
+mapToOperation f (fun@Function {fCode = code}) =
   fun {fCode = map (mapToOperationInBlock f) code}
 
 mapToOperationInBlock :: BlockOperationMap i r -> Block i r -> Block i r
-mapToOperationInBlock f (b @ Block {bCode = code}) = b {bCode = map f code}
+mapToOperationInBlock f (b@Block {bCode = code}) = b {bCode = map f code}
 
 pragmas :: String -> [String] -> [String]
 pragmas tool = concatMap (linePragmas tool)
@@ -893,11 +893,11 @@ foldWithTempIndex f acc0 code =
       (_, acc) = foldl f (i, acc0) code
   in  acc
 
-foldFunction fun acc f @ Function {fCode = code} =
+foldFunction fun acc f@Function {fCode = code} =
   let (code', _) = foldl (foldBlock fun) ([], acc) code
   in f {fCode = code'}
 
-foldBlock fun (accCode, acc) b @ Block {bCode = code} =
+foldBlock fun (accCode, acc) b@Block {bCode = code} =
   let (code', acc') = foldl fun (code, acc) code
   in (accCode ++ [b {bCode = code'}], acc')
 
@@ -920,18 +920,18 @@ makeOptional o =
 
 addNullInstruction o
   | isNatural o = mapToInstructions (\is -> [mkNullInstruction] ++ is) o
-addNullInstruction o @ SingleOperation {oOpr = Virtual opr} =
+addNullInstruction o@SingleOperation {oOpr = Virtual opr} =
   o {oOpr = Virtual (mapToVirtualOprInstructions addNullInstr opr)}
 
 addNullInstr is = [mkNullInstruction] ++ is
 
 addNullTemp :: Operand r -> Operand r
-addNullTemp p @ MOperand {altTemps = ts} = p {altTemps = [mkNullTemp] ++ ts}
+addNullTemp p@MOperand {altTemps = ts} = p {altTemps = [mkNullTemp] ++ ts}
 
 foldVirtualCopy :: Eq i => Eq r =>
                    ([Block i r] -> BlockOperationPredicate i r) ->
                    Function i r -> Function i r
-foldVirtualCopy p f @ Function {fCode = code, fCongruences = cs} =
+foldVirtualCopy p f@Function {fCode = code, fCongruences = cs} =
   case find (p code) (flatten code) of
    Nothing -> f
    Just c ->
@@ -944,19 +944,19 @@ foldVirtualCopy p f @ Function {fCode = code, fCongruences = cs} =
      in f {fCode = code'', fCongruences = cs'}
 
 cleanRedundantReads :: Eq r => BlockOperation i r -> BlockOperation i r
-cleanRedundantReads o @ SingleOperation {} =
+cleanRedundantReads o@SingleOperation {} =
   let rs' = oReadObjects o \\ oWriteObjects o
   in mapToReads (const rs') o
-cleanRedundantReads o @ Bundle {bundleOs = os} =
+cleanRedundantReads o@Bundle {bundleOs = os} =
   o {bundleOs = map cleanRedundantReads os}
 
 peephole :: Eq r => OperationTransform i r -> FunctionTransform i r
-peephole tf f @ Function {fCode = code} =
+peephole tf f@Function {fCode = code} =
   let ids        = newIndexes $ flatten code
       (_, code') = foldl (peepholeBlock (tf f)) (ids, []) code
   in f {fCode = code'}
 
-peepholeBlock tf (ids, accCode) b @ Block {bCode = code} =
+peepholeBlock tf (ids, accCode) b@Block {bCode = code} =
     let code' = applyPeephole tf code [] ids
         ids'  = updateIndexes ids code'
     in (ids', accCode ++ [b {bCode = code'}])
@@ -985,53 +985,53 @@ oDefs :: BlockOperation i r -> [Operand r]
 oDefs (SingleOperation {oOpr = o}) = oOprDefs o
 
 oOprUses :: Operation i r -> [Operand r]
-oOprUses (Natural (o @ Linear {})) = oUs o
-oOprUses (Natural (o @ Branch {})) = oBranchUs o
-oOprUses (Natural (o @ Call {})) = oCallUs o
-oOprUses (Natural (o @ TailCall {})) = oTailCallUs o
-oOprUses (Virtual (o @ Phi {})) = oPhiUs o
+oOprUses (Natural (o@Linear {})) = oUs o
+oOprUses (Natural (o@Branch {})) = oBranchUs o
+oOprUses (Natural (o@Call {})) = oCallUs o
+oOprUses (Natural (o@TailCall {})) = oTailCallUs o
+oOprUses (Virtual (o@Phi {})) = oPhiUs o
 oOprUses (Virtual (Delimiter (In {}))) = []
-oOprUses (Virtual (Delimiter (o @ Out {}))) = oOuts o
+oOprUses (Virtual (Delimiter (o@Out {}))) = oOuts o
 oOprUses (Virtual (Delimiter (Entry {}))) = []
-oOprUses (Virtual (Delimiter (o @ Return {}))) = oReturn o
+oOprUses (Virtual (Delimiter (o@Return {}))) = oReturn o
 oOprUses (Virtual (Delimiter (Exit {}))) = []
-oOprUses (Virtual (o @ Kill {})) = oKillUs o
+oOprUses (Virtual (o@Kill {})) = oKillUs o
 oOprUses (Virtual (Define {})) = []
-oOprUses (Virtual (o @ Combine {})) = [oCombineLowU o, oCombineHighU o]
-oOprUses (Virtual (o @ Low {})) = [oLowU o]
-oOprUses (Virtual (o @ High {})) = [oHighU o]
-oOprUses (Virtual (o @ Split2 {})) = [oSplit2U o]
-oOprUses (Virtual (o @ Split4 {})) = [oSplit4U o]
-oOprUses (Virtual (o @ VirtualCopy {})) = [oVirtualCopyS o]
-oOprUses (Virtual (o @ Fun {})) = oFunctionUs o
-oOprUses (Virtual (Frame (o @ Setup {}))) = [oSetupU o]
-oOprUses (Virtual (Frame (o @ Destroy {}))) = [oDestroyU o]
-oOprUses o @ Copy {} = oCopyS o : oCopyUs o
+oOprUses (Virtual (o@Combine {})) = [oCombineLowU o, oCombineHighU o]
+oOprUses (Virtual (o@Low {})) = [oLowU o]
+oOprUses (Virtual (o@High {})) = [oHighU o]
+oOprUses (Virtual (o@Split2 {})) = [oSplit2U o]
+oOprUses (Virtual (o@Split4 {})) = [oSplit4U o]
+oOprUses (Virtual (o@VirtualCopy {})) = [oVirtualCopyS o]
+oOprUses (Virtual (o@Fun {})) = oFunctionUs o
+oOprUses (Virtual (Frame (o@Setup {}))) = [oSetupU o]
+oOprUses (Virtual (Frame (o@Destroy {}))) = [oDestroyU o]
+oOprUses o@Copy {} = oCopyS o : oCopyUs o
 
 oOprDefs :: Operation i r -> [Operand r]
-oOprDefs (Natural (o @ Linear {})) = oDs o
+oOprDefs (Natural (o@Linear {})) = oDs o
 oOprDefs (Natural Branch {}) = []
 oOprDefs (Natural (Call {})) = []
 oOprDefs (Natural (TailCall {})) = []
-oOprDefs (Virtual (o @ Phi {})) = [oPhiD o]
-oOprDefs (Virtual (Delimiter (o @ In {}))) = oIns o
+oOprDefs (Virtual (o@Phi {})) = [oPhiD o]
+oOprDefs (Virtual (Delimiter (o@In {}))) = oIns o
 oOprDefs (Virtual (Delimiter (Out {}))) = []
-oOprDefs (Virtual (Delimiter (o @ Entry {}))) = oEntry o
+oOprDefs (Virtual (Delimiter (o@Entry {}))) = oEntry o
 oOprDefs (Virtual (Delimiter (Return {}))) = []
 oOprDefs (Virtual (Delimiter (Exit {}))) = []
 oOprDefs (Virtual (Kill {})) = []
-oOprDefs (Virtual (o @ Define {})) = oDefineDs o
-oOprDefs (Virtual (o @ Combine {})) = [oCombineD o]
-oOprDefs (Virtual (o @ Low {})) = [oLowD o]
-oOprDefs (Virtual (o @ High {})) = [oHighD o]
-oOprDefs (Virtual (o @ Split2 {})) = [oSplit2LowD o, oSplit2HighD o]
-oOprDefs (Virtual (o @ Split4 {})) = [oSplit4LowLowD o, oSplit4LowHighD o,
+oOprDefs (Virtual (o@Define {})) = oDefineDs o
+oOprDefs (Virtual (o@Combine {})) = [oCombineD o]
+oOprDefs (Virtual (o@Low {})) = [oLowD o]
+oOprDefs (Virtual (o@High {})) = [oHighD o]
+oOprDefs (Virtual (o@Split2 {})) = [oSplit2LowD o, oSplit2HighD o]
+oOprDefs (Virtual (o@Split4 {})) = [oSplit4LowLowD o, oSplit4LowHighD o,
                                       oSplit4HighLowD o, oSplit4HighHighD o]
-oOprDefs (Virtual (o @ VirtualCopy {})) = [oVirtualCopyD o]
-oOprDefs (Virtual (o @ Fun {})) = oFunctionDs o
+oOprDefs (Virtual (o@VirtualCopy {})) = [oVirtualCopyD o]
+oOprDefs (Virtual (o@Fun {})) = oFunctionDs o
 oOprDefs (Virtual (Frame (Setup {}))) = []
 oOprDefs (Virtual (Frame (Destroy {}))) = []
-oOprDefs o @ Copy {} = oCopyD o : oCopyDs o
+oOprDefs o@Copy {} = oCopyD o : oCopyDs o
 
 oAllOps ::  BlockOperation i r -> [Operand r]
 oAllOps o = oUses o ++ oDefs o
@@ -1106,14 +1106,14 @@ oInstructions ::  BlockOperation i r -> [Instruction i]
 oInstructions = oOprInstructions . oOpr
 
 oOprInstructions ::  Operation i r -> [Instruction i]
-oOprInstructions (o @ Copy {}) = oCopyIs o
-oOprInstructions (Natural (o @ Linear {})) = oIs o
-oOprInstructions (Natural (o @ Branch {})) = oBranchIs o
-oOprInstructions (Natural (o @ Call {})) = oCallIs o
-oOprInstructions (Natural (o @ TailCall {})) = oTailCallIs o
-oOprInstructions (Virtual (o @ Kill {})) = map General (oKillIs o)
-oOprInstructions (Virtual (o @ Low {})) = map General (oLowIs o)
-oOprInstructions (Virtual (o @ High {})) = map General (oHighIs o)
+oOprInstructions (o@Copy {}) = oCopyIs o
+oOprInstructions (Natural (o@Linear {})) = oIs o
+oOprInstructions (Natural (o@Branch {})) = oBranchIs o
+oOprInstructions (Natural (o@Call {})) = oCallIs o
+oOprInstructions (Natural (o@TailCall {})) = oTailCallIs o
+oOprInstructions (Virtual (o@Kill {})) = map General (oKillIs o)
+oOprInstructions (Virtual (o@Low {})) = map General (oLowIs o)
+oOprInstructions (Virtual (o@High {})) = map General (oHighIs o)
 oOprInstructions (Virtual Fun {}) = [mkBarrierInstruction]
 oOprInstructions (Virtual Delimiter {}) = [mkBarrierInstruction]
 oOprInstructions (Virtual _) = [mkVirtualInstruction]
@@ -1141,7 +1141,7 @@ newFrameIndex []   = 0
 newFrameIndex objs = maximum (map foIndex objs) + 1
 
 applyToLatency :: (Latency -> Latency) -> OperandInfo rc -> OperandInfo rc
-applyToLatency f ti @ TemporaryInfo {oiLatency = l} = ti {oiLatency = f l}
+applyToLatency f ti@TemporaryInfo {oiLatency = l} = ti {oiLatency = f l}
 applyToLatency _ op = op
 
 oType :: BlockOperation i r -> OperationT
@@ -1364,7 +1364,7 @@ toMachineInstruction :: Show i => Show r => BlockOperation i r ->
 toMachineInstruction Bundle {bundleOs = os} =
   let mis = map toMachineInstruction os
   in mkMachineBundle mis
-toMachineInstruction o @ SingleOperation {oAs = attrs} =
+toMachineInstruction o@SingleOperation {oAs = attrs} =
   let mopc = toMachineOpcode o
       mps  = toMachineInstructionProperties attrs
       os   = oDefs o ++ oUses o
@@ -1434,12 +1434,12 @@ linearizeCode ::  [Block i r] -> [Block i r]
 linearizeCode = map linearizeBlock
 
 linearizeBlock :: Block i r -> Block i r
-linearizeBlock b @ Block {bCode = bcode} =
+linearizeBlock b@Block {bCode = bcode} =
     b {bCode = concatMap linearizeOpr bcode}
 
 linearizeOpr :: BlockOperation i r -> [BlockOperation i r]
-linearizeOpr (o @ SingleOperation {}) = [o]
-linearizeOpr (o @ Bundle {}) = bundleOs o
+linearizeOpr (o@SingleOperation {}) = [o]
+linearizeOpr (o@Bundle {}) = bundleOs o
 
 toSubRegIndex :: Show r => MachineOperand r -> SubRegIndex
 toSubRegIndex (MachineSubRegIndex sri) = NamedSubRegIndex sri

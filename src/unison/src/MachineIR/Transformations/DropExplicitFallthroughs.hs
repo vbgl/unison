@@ -36,14 +36,14 @@ buildFallThroughMap mbs =
 fallThrough (mb1, mb2) = (mbId mb1, mbId mb2)
 
 dropExplicitFallthrough fs ftb
-  mb @ MachineBlock {mbId = id, mbInstructions = mis}
+  mb@MachineBlock {mbId = id, mbInstructions = mis}
   | null mis || not (M.member id ftb) = mb
   | otherwise =
     let mis' = concatMap (filterUnconditionalJumps fs (ftb M.! id)) mis
     in mb {mbInstructions = mis'}
 
-filterUnconditionalJumps fs @ (_, _, _, n) l
-  mb @ MachineBundle {mbInstrs = mis} =
+filterUnconditionalJumps fs@(_, _, _, n) l
+  mb@MachineBundle {mbInstrs = mis} =
     case filter (not . isUnconditionalJumpTo fs l) mis of
       []   -> []
       [MachineSingle {msOpcode = MachineTargetOpc i}]

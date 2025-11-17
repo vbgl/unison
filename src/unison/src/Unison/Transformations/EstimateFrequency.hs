@@ -20,7 +20,7 @@ import qualified Unison.Graphs.BCFG as BCFG
 import qualified Unison.Graphs.DT as DT
 import Unison.Analysis.FrequencyEstimation
 
-estimateFrequency f @ Function {fCode = code} target =
+estimateFrequency f@Function {fCode = code} target =
   let bif    = branchInfo target
       bcfg  = BCFG.fromFunction bif f
       bdt   = DT.fromCFG bcfg
@@ -28,7 +28,7 @@ estimateFrequency f @ Function {fCode = code} target =
       code' = map (fillBlockFreq freq) code
   in f {fCode = code'}
 
-fillBlockFreq freq b @ Block {bLab = l, bAs = attrs}
+fillBlockFreq freq b@Block {bLab = l, bAs = attrs}
   | isJust (aFreq attrs) = b
   | otherwise = b {bAs = (attrs {aFreq = Just (freq M.! l)})}
 

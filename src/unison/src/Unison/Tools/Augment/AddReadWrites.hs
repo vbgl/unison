@@ -16,7 +16,7 @@ import Data.List
 import Unison
 import Unison.Target.API
 
-addReadWrites f @ Function {fCode = code} target =
+addReadWrites f@Function {fCode = code} target =
     let rwif     = fromOperation (readWriteInfo target)
         fcode    = flatten code
         code'    = mapToOperationInBlocks (addReadWritesToOpr rwif) code

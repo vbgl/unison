@@ -137,7 +137,7 @@ propagateInstruction ra t2p p2w (MOperand{altTemps = ts}, rc) =
   let t2rc = [(t, rc) | t <- ts, not (isNullTemporary t)]
   in foldl (propagateInstruction ra t2p) p2w t2rc
 
-propagateInstruction ra t2p p2w (t @ Temporary{}, rc) =
+propagateInstruction ra t2p p2w (t@Temporary{}, rc) =
     let p = t2p M.! t
         w = raRcUsage ra rc
     in M.insert p w p2w

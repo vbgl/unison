@@ -31,7 +31,7 @@ import qualified Data.Map as M
 import qualified Data.Set as S
 
 parameters oldModel (_, dgs, _, _, ra, _)
-  f @ Function {fCode = code} target _ps =
+  f@Function {fCode = code} target _ps =
   let oif         = operandInfo target
       pgs         = map (PG.nonNegative . PG.fromDependencyGraph oif) dgs
       domuses     = if oldModel then []
@@ -143,7 +143,7 @@ pgPrecs pg = nub $ sort $ [(i, j) | (i, j, _) <- labEdges pg]
 
 assignmentHints Function { fCode = code } =
   let ts    = tUniqueOps $ flatten code
-      t2r   = [(undoPreAssign t, r) | t @ Temporary {tReg = Just r} <- ts]
+      t2r   = [(undoPreAssign t, r) | t@Temporary {tReg = Just r} <- ts]
       ps    = concatMap boundaryOps code
       hints = concatMap (operandHints (M.fromList t2r)) ps
   in hints

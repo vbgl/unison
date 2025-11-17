@@ -20,7 +20,7 @@ import qualified Data.Map as M
 import Common.Util
 import MachineIR
 
-removeEmptyBlocks onlySplits mf @ MachineFunction {mfBlocks = code} _target =
+removeEmptyBlocks onlySplits mf@MachineFunction {mfBlocks = code} _target =
     let ids    = map mbId code
         -- Blocks which are referred by phi instructions are forbidden as
         -- removing them might render the phi instructions ambiguous.
@@ -43,7 +43,7 @@ removeEmptyBlocks onlySplits mf @ MachineFunction {mfBlocks = code} _target =
     in mf5
 
 removeEmptyBlock forbid (ids, pmap, smap, removedFreqs)
-  mb @ MachineBlock {mbId = id, mbInstructions = []}
+  mb@MachineBlock {mbId = id, mbInstructions = []}
       | S.notMember id forbid =
     let nid   = next id ids
         pid   = previous id ids
@@ -57,7 +57,7 @@ removeEmptyBlock _ acc mb = (acc, Just mb)
 next     e l = l !! (p + 1) where p = fromJust $ elemIndex e l
 previous e l = l !! (p - 1) where p = fromJust $ elemIndex e l
 
-phiLabels mi @ MachineSingle {msOperands = mos}
+phiLabels mi@MachineSingle {msOperands = mos}
   | isMachinePhi mi = map mbrId $ filter isMachineBlockRef mos
   | otherwise = []
 phiLabels MachineBundle {mbInstrs = mis} = concatMap phiLabels mis

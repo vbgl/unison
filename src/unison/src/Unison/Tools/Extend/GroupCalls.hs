@@ -15,11 +15,11 @@ import Data.List.Split
 
 import Unison
 
-groupCalls f @ Function {fCode = code} _target =
+groupCalls f@Function {fCode = code} _target =
     let code' = map groupCallsInBlock code
     in f {fCode = code'}
 
-groupCallsInBlock b @ Block {bCode = code} =
+groupCallsInBlock b@Block {bCode = code} =
     let code'  = groupOperations (True, isCall, isFun) code
         code'' = groupOperations (False, isFun, isKill) code'
     in b {bCode = code''}

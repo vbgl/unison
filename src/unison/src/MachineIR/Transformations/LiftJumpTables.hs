@@ -21,7 +21,7 @@ import Unison.Base
 import Unison.Util
 import Unison.Instances()
 
-liftJumpTables mf @ MachineFunction {mfBlocks = mbs} target =
+liftJumpTables mf@MachineFunction {mfBlocks = mbs} target =
   let itf   = instructionType target
       bif   = branchInfo target
       oif   = operandInfo target
@@ -30,7 +30,7 @@ liftJumpTables mf @ MachineFunction {mfBlocks = mbs} target =
       mf'   = mf {mfBlocks = mbs''}
   in mf'
 
-liftJumpTablesInBlock fs mb @ MachineBlock {mbProperties   = mps,
+liftJumpTablesInBlock fs mb@MachineBlock {mbProperties   = mps,
                                             mbInstructions = mis} =
   case find isMachineBlockPropertySuccs mps of
     -- Block successors are only required to support jump tables
@@ -40,7 +40,7 @@ liftJumpTablesInBlock fs mb @ MachineBlock {mbProperties   = mps,
           mis'  = map (liftJumpTablesInInstruction fs succs) mis
       in mb {mbInstructions = mis'}
 
-liftJumpTablesInInstruction fs succs mi @ MachineBundle {mbInstrs = mis} =
+liftJumpTablesInInstruction fs succs mi@MachineBundle {mbInstrs = mis} =
   mi {mbInstrs = map (liftJumpTablesInInstruction fs succs) mis}
 liftJumpTablesInInstruction (itf, bif, oif) succs mi
     | isMachineBranch itf mi =
@@ -54,6 +54,6 @@ liftJumpTablesInInstruction (itf, bif, oif) succs mi
           _ -> mi
     | otherwise = mi
 
-removeBlockSuccs mb @ MachineBlock {mbProperties = mps} =
+removeBlockSuccs mb@MachineBlock {mbProperties = mps} =
   let mps' = filter (not . isMachineBlockPropertySuccs) mps
   in mb {mbProperties = mps'}

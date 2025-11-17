@@ -48,7 +48,7 @@ goalObInOpr _ modelCost _ Cycles o
     | modelCost && (isIn o || isFun o) = 1
     | isVirtual o = 0
     | otherwise = 1
-goalObInOpr sof modelCost aux ru @ SpillOverhead Bundle {bundleOs = os} =
+goalObInOpr sof modelCost aux ru@SpillOverhead Bundle {bundleOs = os} =
     sumMap (goalObInOpr sof modelCost aux ru) os
 goalObInOpr sof _ _ SpillOverhead o
     | isVirtual o = 0
@@ -56,7 +56,7 @@ goalObInOpr sof _ _ SpillOverhead o
         case sof (targetInst $ oInstructions o, oUses o, oDefs o) of
          Just (_, l) -> l
          Nothing -> 0
-goalObInOpr sof modelCost aux ru @ SpillAction Bundle {bundleOs = os} =
+goalObInOpr sof modelCost aux ru@SpillAction Bundle {bundleOs = os} =
     sumMap (goalObInOpr sof modelCost aux ru) os
 goalObInOpr sof _ _ SpillAction o
     | isVirtual o = 0
@@ -64,7 +64,7 @@ goalObInOpr sof _ _ SpillAction o
         case sof (targetInst $ oInstructions o, oUses o, oDefs o) of
          Just (True, _) -> 1
          _ -> 0
-goalObInOpr sof modelCost aux ru @ (ResourceUsage _) Bundle {bundleOs = os} =
+goalObInOpr sof modelCost aux ru@(ResourceUsage _) Bundle {bundleOs = os} =
     sumMap (goalObInOpr sof modelCost aux ru) os
 goalObInOpr _ modelCost (uf, cf) (ResourceUsage r) o
     | modelCost && isBarrier o = cf M.! r

@@ -14,12 +14,12 @@ module MachineIR.Transformations.LiftBlockFreqs (liftBlockFreqs) where
 import Data.List
 import MachineIR
 
-liftBlockFreqs mf @ MachineFunction {mfBlocks = mbs} _target =
+liftBlockFreqs mf@MachineFunction {mfBlocks = mbs} _target =
   let mbs' = map liftBlockFreq mbs
       mf'  = mf {mfBlocks = mbs'}
   in mf'
 
-liftBlockFreq mb @ MachineBlock {mbProperties   = mps,
+liftBlockFreq mb@MachineBlock {mbProperties   = mps,
                                  mbInstructions = mis} =
   case partition isMachineBlockFreqInstruction mis of
    ([MachineSingle {msOperands = MachineBlockFreq {mbfFreq = f} : _}], mis') ->

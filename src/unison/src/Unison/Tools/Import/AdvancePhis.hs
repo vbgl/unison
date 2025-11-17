@@ -16,6 +16,6 @@ import Unison.Base
 import Unison.Util
 import Unison.Predicates
 
-advancePhis f @ Function {fCode = code} _target =
+advancePhis f@Function {fCode = code} _target =
   let code' = map (moveOperations isPhi after isIn) code
   in f {fCode = code'}

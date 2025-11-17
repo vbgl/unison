@@ -31,10 +31,10 @@ extractSubRegs mf _target =
 -- | Phi instructions are special: we add the extractSubReg instructions in the
 -- predecessor blocks in a second pass
 extractInstrSubRegs (accIs, (id, esrs))
-  (mi @ MachineSingle {msOperands = (_:os)} : is)
+  (mi@MachineSingle {msOperands = (_:os)} : is)
   | isMachinePhi mi =
   let os'      = [(u, l) | [u, l] <- chunksOf 2 os]
-      subtemps = nub [(mst, mbb) | (mst @ MachineSubTemp {}, mbb) <- os']
+      subtemps = nub [(mst, mbb) | (mst@MachineSubTemp {}, mbb) <- os']
       st2t     = mapToTemps id subtemps
       esr      = [(mkExtractSubReg (mst, mt), mbb) | ((mst, mbb), mt) <- st2t]
       mi'      = replacePhiSubRegs
@@ -42,8 +42,8 @@ extractInstrSubRegs (accIs, (id, esrs))
   in extractInstrSubRegs (accIs ++ [mi'], (nextId id st2t, esrs ++ esr)) is
 
 extractInstrSubRegs (accIs, (id, esrs))
-  (mi @ MachineSingle {msOperands = os} : is) =
-  let subtemps = nub [mst | mst @ MachineSubTemp {} <- os]
+  (mi@MachineSingle {msOperands = os} : is) =
+  let subtemps = nub [mst | mst@MachineSubTemp {} <- os]
       st2t     = mapToTemps id subtemps
       esr      = map mkExtractSubReg st2t
       mi'      = replaceSubRegs st2t mi
@@ -56,10 +56,10 @@ nextId _ st2t = maximum (map (mtId . snd) st2t) + 1
 
 mapToTemps id subtemps = zip subtemps (map mkSimpleMachineTemp [id..])
 
-replaceSubRegs m mi @ MachineSingle {msOperands = os} =
+replaceSubRegs m mi@MachineSingle {msOperands = os} =
   mi {msOperands = map (applyMap (M.fromList m)) os}
 
-replacePhiSubRegs m mi @ MachineSingle {msOperands = (d:os)}
+replacePhiSubRegs m mi@MachineSingle {msOperands = (d:os)}
   | isMachinePhi mi =
     let m'  = applyMap $ M.fromList m
         os1 = [(u, l) | [u, l] <- chunksOf 2 os]
@@ -73,6 +73,6 @@ mkExtractSubReg (MachineSubTemp {mstId = mstid, mstSubRegIndex = subreg},
   [mkMachineTemp id [] d, mkMachineTemp mstid [] Nothing,
    mkMachineSubRegIndex subreg]
 
-appendInstrs b2mis b @ MachineBlock {mbId = bid, mbInstructions = mis}
+appendInstrs b2mis b@MachineBlock {mbId = bid, mbInstructions = mis}
   | M.member bid b2mis = b {mbInstructions = mis ++ b2mis M.! bid}
   | otherwise = b

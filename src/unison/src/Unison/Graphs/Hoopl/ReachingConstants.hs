@@ -88,7 +88,7 @@ equivalent os os' =
 
 canonicalize :: Show i => Eq i => Ord i => Ord r => ConstLattElem i r ->
                 ConstLattElem i r
-canonicalize const @ ConstOprs {constOprs = os} =
+canonicalize const@ConstOprs {constOprs = os} =
     let os'   = sortBy canonicalCompare os
         os''  = renameTemps os'
         os''' = renameOperations os''

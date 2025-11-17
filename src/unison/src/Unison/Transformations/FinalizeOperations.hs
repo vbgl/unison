@@ -20,7 +20,7 @@ import Unison.Predicates
 import Unison.Constructors
 import Unison.Target.API
 
-finalizeOperations f @ Function {fCode = bcode} target =
+finalizeOperations f@Function {fCode = bcode} target =
     let iNop          = nop target
         id            = newId (linearizeCode bcode)
         bcode'        = map removeBarrierBundles bcode
@@ -28,7 +28,7 @@ finalizeOperations f @ Function {fCode = bcode} target =
         (_, bcode''') = mapAccumL (fillEmptyBundles iNop) id bcode''
     in f {fCode = bcode'''}
 
-removeVirtualBundles b @ Block {bCode = code} =
+removeVirtualBundles b@Block {bCode = code} =
     let code'  = filter (not . isDelimiterBundle) code
         code'' = concatMap filterNonVirtual code'
     in b {bCode = code''}
@@ -37,16 +37,16 @@ isDelimiterBundle (Bundle is) | any isDelimiter is && all isVirtual is = True
 isDelimiterBundle _ = False
 
 filterNonVirtual (Bundle is) = [Bundle (filter (not . isVirtual) is)]
-filterNonVirtual o @ SingleOperation {} = filter (not . isVirtual) [o]
+filterNonVirtual o@SingleOperation {} = filter (not . isVirtual) [o]
 
-removeBarrierBundles b @ Block {bCode = code} =
+removeBarrierBundles b@Block {bCode = code} =
   let code' = filter (not . isBarrierBundle) code
   in b {bCode = code'}
 
 isBarrierBundle (Bundle is) | any isFun is && all isVirtual is = True
 isBarrierBundle _ = False
 
-fillEmptyBundles iNop id b @ Block {bCode = code} =
+fillEmptyBundles iNop id b@Block {bCode = code} =
     let (id', code') = mapAccumL (fillEmptyBundle iNop) id code
     in (id', b {bCode = code'})
 

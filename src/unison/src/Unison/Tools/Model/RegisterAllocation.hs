@@ -37,7 +37,7 @@ import qualified Unison.Graphs.Partition as P
 
 import Unison.Tools.Model.Definitions
 
-parameters noCC (cg, _, _, t2w, ra, _) f @ Function {fCode = code} target =
+parameters noCC (cg, _, _, t2w, ra, _) f@Function {fCode = code} target =
     let oif         = operandInfo target
         bif         = branchInfo target
         apf         = alignedPairs target
@@ -300,7 +300,7 @@ isNullDefiner t i = any (isNullEquivalentTo t) (oDefs i)
 
 isNullEquivalentTo t t' = isEquivalentTo (cleanNullTemps t) (cleanNullTemps t')
 
-cleanNullTemps tc @ MOperand {altTemps = ts} =
+cleanNullTemps tc@MOperand {altTemps = ts} =
     tc {altTemps = filter (not . isNullTemporary) ts}
 cleanNullTemps t = t
 

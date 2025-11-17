@@ -409,7 +409,7 @@ preProcess to = [mapToTargetMachineInstruction instantiateMEMCPY,
                  if align to then id else relaxAlignment]
 
 instantiateMEMCPY
-  mi @ MachineSingle {msOpcode = MachineTargetOpc i,
+  mi@MachineSingle {msOpcode = MachineTargetOpc i,
                       msOperands = mos}
   | i == MEMCPY = case miValue (mos !! 4) of
     4 -> mi {msOpcode   = mkMachineTargetOpc MEMCPY_4,
@@ -417,7 +417,7 @@ instantiateMEMCPY
     n -> error ("FIXME: implement MEMCPY_" ++ show n)
 instantiateMEMCPY mi = mi
 
-cleanConstPoolBlocks mf @ MachineFunction {mfBlocks = mbs} =
+cleanConstPoolBlocks mf@MachineFunction {mfBlocks = mbs} =
   mf {mfBlocks = filter (not . isConstPoolBlock) mbs}
 
 isConstPoolBlock MachineBlock {mbInstructions = mis} =
@@ -427,16 +427,16 @@ isConstPoolBlock MachineBlock {mbInstructions = mis} =
          (isMachineVirtual mi && mopcVirtual (msOpcode mi) == EXIT)) mis
 
 promoteImplicitOperands
-  mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+  mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                       msOperands = [o1, o2, o3, p1, p2,
-                                    cc @ MachineReg {mrName = CPSR}]}
+                                    cc@MachineReg {mrName = CPSR}]}
   | i `elem` [T2SUBrr, T2SUBri, T2ORRrr, T2ANDri, T2ADDri] =
     let mos' = [o1, cc, o2, o3, p1, p2]
     in mi {msOpcode = mkMachineTargetOpc (toExplicitCpsrDef i),
            msOperands = mos'}
 
 promoteImplicitOperands
-  mi @ MachineSingle {msOpcode = MachineTargetOpc i, msOperands = mos} =
+  mi@MachineSingle {msOpcode = MachineTargetOpc i, msOperands = mos} =
     let fu   = length $ snd $ operandInfo i
         mos' = if writesSideEffect i CPSR
                then insertAt (mkMachineReg CPSR) (fu - 1) mos
@@ -451,15 +451,15 @@ writesSideEffect i eff =
 -- This is done to prevent 'extractCallRegs' adding the 'cpsr' register as
 -- argument to function calls
 
-hideCPSRRegister mi @ MachineSingle {msOperands = mos} =
+hideCPSRRegister mi@MachineSingle {msOperands = mos} =
   let mos' = mapIf isMachineReg hideCPSR mos
   in mi {msOperands = mos'}
 
-hideCPSR mr @ MachineReg {mrName = CPSR} = mr {mrName = PRED}
+hideCPSR mr@MachineReg {mrName = CPSR} = mr {mrName = PRED}
 hideCPSR mr = mr
 
 explicateRedefPatterns
-  mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+  mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                       msOperands = [d, u1, u2, u3, p1, p2, s,
                                     MachineTemp {mtId = tid,
                                                  mtFlags = [MachineRegImplicit],
@@ -470,7 +470,7 @@ explicateRedefPatterns
     in mi {msOpcode = i', msOperands = mos'}
 
 explicateRedefPatterns
-  mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+  mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                       msOperands = [d, u1, u2, p1, p2, s,
                                     MachineTemp {mtId = tid,
                                                  mtFlags = [MachineRegImplicit],
@@ -485,20 +485,20 @@ explicateRedefPatterns mi = mi
 
 liftToTOpc f = mkMachineTargetOpc . f . mopcTarget
 
-addFrameIndex mi @ MachineSingle {msOpcode = opcode,
+addFrameIndex mi@MachineSingle {msOpcode = opcode,
                                   msOperands = operands}
   | any isMachineConstantPoolIndex operands &&
     any isTemporaryInfo (fst $ operandInfo $ mopcTarget opcode) =
     mi {msOpcode = liftToTOpc (\i -> read (show i ++ "_cpi")) opcode}
 
-addFrameIndex mi @ MachineSingle {msOpcode = opcode,
+addFrameIndex mi@MachineSingle {msOpcode = opcode,
                                   msOperands = operands}
   | any isMachineFrameIndex operands &&
     any isTemporaryInfo (fst $ operandInfo $ mopcTarget opcode) =
       mi {msOpcode = liftToTOpc (\i -> read (show i ++ "_fi")) opcode}
   | otherwise = mi
 
-processTailCalls mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+processTailCalls mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                                      msOperands = s:mos}
   | i == TCRETURNdi =
     let mos' = [s] ++ defaultMIRPred ++ mos
@@ -507,13 +507,13 @@ processTailCalls mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
 
 processTailCalls mi = mi
 
-collapseVarOpInstructions mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+collapseVarOpInstructions mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                                               msOperands = p1:p2:mos}
   | i `elem` [TPUSH, TPOP_RET] =
     let i' = varOpPseudo i mos
     in mi {msOpcode = mkMachineTargetOpc i', msOperands = [p1,p2]}
 
-collapseVarOpInstructions mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+collapseVarOpInstructions mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                                               msOperands = sp:sp':p1:p2:mos}
   | i `elem` [T2STMDB_UPD, T2LDMIA_UPD, T2LDMIA_RET] =
     let i' = varOpPseudo i mos
@@ -553,7 +553,7 @@ varOpPseudo T2LDMIA_RET mos
 isMachineRegWith r MachineReg {mrName = r'} = r == r'
 isMachineRegWith _ _ = False
 
-relaxAlignment mf @ MachineFunction {mfProperties = mps} =
+relaxAlignment mf@MachineFunction {mfProperties = mps} =
   -- if the only (non-fixed) objects in the stack are callee-saved registers and
   -- there are no SP-relative stores, the only reason for SP adjustments is the
   -- alignment constraints
@@ -597,9 +597,9 @@ postProcess to = [expandPseudos to, removeAllNops, removeFrameIndex,
 
 expandPseudos to = mapToMachineBlock (expandBlockPseudos (expandPseudo to))
 
-expandPseudo to mi @ MachineSingle {
+expandPseudo to mi@MachineSingle {
   msOpcode   = MachineTargetOpc T2MOVi32imm,
-  msOperands = [dst, ga @ MachineGlobalAddress {}]}
+  msOperands = [dst, ga@MachineGlobalAddress {}]}
   | not (unitLatency to) =
     let mi1 = mi {msOpcode   = mkMachineTargetOpc T2MOVi16,
                   msOperands = [dst, ga] ++ defaultMIRPred}
@@ -607,7 +607,7 @@ expandPseudo to mi @ MachineSingle {
                   msOperands = [dst, dst, ga] ++ defaultMIRPred}
     in [[mi1], [mi2]]
 
-expandPseudo to mi @ MachineSingle {
+expandPseudo to mi@MachineSingle {
   msOpcode   = MachineTargetOpc i,
   msOperands = [d, u1, u2, u3, _, cc, p, s]}
   | not (unitLatency to) && isRedefInstr i =
@@ -618,7 +618,7 @@ expandPseudo to mi @ MachineSingle {
                   msOperands = [d, u1, u2, u3, cc, p, s]}
     in [[mi1], [mi2]]
 
-expandPseudo to mi @ MachineSingle {
+expandPseudo to mi@MachineSingle {
   msOpcode   = MachineTargetOpc i,
   msOperands = [d, u1, u2, _, cc, p, s]}
   | not (unitLatency to) && isRedefInstr i =
@@ -629,7 +629,7 @@ expandPseudo to mi @ MachineSingle {
                   msOperands = [d, u1, u2, cc, p, s]}
     in [[mi1], [mi2]]
 
-expandPseudo to mi @ MachineSingle {
+expandPseudo to mi@MachineSingle {
   msOpcode   = MachineTargetOpc i,
   msOperands = [_, u1, u2, cc, p]}
   | not (unitLatency to) && i `elem` condMoveInstrs =
@@ -643,10 +643,10 @@ expandPseudo to mi @ MachineSingle {
 
 -- TODO: expand 'T2MOVCCi32imm'
 
-expandPseudo _ mi @ MachineSingle {msOpcode = MachineTargetOpc TFP} =
+expandPseudo _ mi@MachineSingle {msOpcode = MachineTargetOpc TFP} =
   [[mi {msOpcode = mkMachineTargetOpc TADDrSPi}]]
 
-expandPseudo _ mi @ MachineSingle {msOpcode = MachineTargetOpc i,
+expandPseudo _ mi@MachineSingle {msOpcode = MachineTargetOpc i,
                                    msOperands = [off]}
   | i `elem` [TSUBspi_pseudo, TADDspi_pseudo] =
     let i' = case i of
@@ -674,19 +674,19 @@ removeAllNops =
 reorderImplicitOperands = mapToMachineInstruction reorderImplicitOperandsInInstr
 
 reorderImplicitOperandsInInstr
-  mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+  mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                       msOperands = MachineReg {mrName = CPSR} : _}
   | i `elem` [T2TSTri_cpsr, T2CMNri_cpsr, T2CMPrr_cpsr, T2TSTrr_cpsr,
               T2SUBrr_cpsr, TCMPi8_cpsr, FMSTAT_cpsr] =
       mi {msOpcode = mkMachineTargetOpc $ fromExplicitCpsrDef i}
 
 reorderImplicitOperandsInInstr
-  mi @ MachineSingle {msOpcode = MachineTargetOpc i}
+  mi@MachineSingle {msOpcode = MachineTargetOpc i}
   | i `elem` [T2CMPri_cpsr] =
       mi {msOpcode = mkMachineTargetOpc $ fromExplicitCpsrDef i}
 
 reorderImplicitOperandsInInstr
-  mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+  mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                       msOperands = [d, u1, p1, p2, _]}
   | i == TMOVi8s =
     let mos' = [d, mkMachineReg CPSR, u1, p1, p2]
@@ -696,23 +696,23 @@ reorderImplicitOperandsInInstr mi = mi
 
 exposeCPSRRegister = mapToMachineInstruction exposeCPSRRegisterInInstr
 
-exposeCPSRRegisterInInstr mi @ MachineSingle {msOperands = mos} =
+exposeCPSRRegisterInInstr mi@MachineSingle {msOperands = mos} =
   let mos' = mapIf isMachineReg exposeCPSR mos
   in mi {msOperands = mos'}
 
-exposeCPSR mr @ MachineReg {mrName = PRED} = mr {mrName = CPSR}
+exposeCPSR mr@MachineReg {mrName = PRED} = mr {mrName = CPSR}
 exposeCPSR mr = mr
 
 removeFrameIndex = mapToMachineInstruction removeFrameIndexInstr
 
 removeFrameIndexInstr
-  mi @ MachineSingle {msOpcode = MachineTargetOpc i,
+  mi@MachineSingle {msOpcode = MachineTargetOpc i,
                       msOperands = [d, off, MachineImm {miValue = 0}, cc, p]}
   | i `elem` [T2LDRi12_fi, VLDRD_fi] =
     let mos = [d, mkMachineReg SP, off, cc, p]
     in mi {msOpcode = mkMachineTargetOpc $ removeFi i, msOperands = mos}
 
-removeFrameIndexInstr mi @ MachineSingle {msOpcode = MachineTargetOpc i}
+removeFrameIndexInstr mi@MachineSingle {msOpcode = MachineTargetOpc i}
   | "_fi" `isSuffixOf`  (show i) =
     mi {msOpcode = mkMachineTargetOpc $ removeFi i}
   | "_cpi" `isSuffixOf` (show i) =
@@ -735,7 +735,7 @@ removeEmptyBundles = filterMachineInstructions (const True)
 demoteImplicitOperands = mapToMachineInstruction demoteImplicitOperandsInInstr
 
 demoteImplicitOperandsInInstr
-  mi @ MachineSingle {msOpcode = MachineTargetOpc i, msOperands = mos,
+  mi@MachineSingle {msOpcode = MachineTargetOpc i, msOperands = mos,
                       msProperties = ps} =
     let (mos', ps') =
           if writesSideEffect i CPSR
@@ -756,7 +756,7 @@ isMachineCPSRReg _ = False
 
 -- | This is the inverse of 'collapseVarOpInstructions'
 
-expandVarOpInstructions mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+expandVarOpInstructions mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                                             msOperands = mos}
   | SpecsGen.parent i `elem` [Just TPUSH, Just T2STMDB_UPD, Just T2LDMIA_UPD] =
     let i'   = fromJust $ SpecsGen.parent i
@@ -814,7 +814,7 @@ transforms AugmentPostRW = [enforceStackFrame]
 
 transforms _ = []
 
-mapToOperationWithGoals t f @ Function {fCode = code, fGoal = gs} =
+mapToOperationWithGoals t f@Function {fCode = code, fGoal = gs} =
   f {fCode = map (mapToOperationInBlock (t gs)) code}
 
 -- | Latency of read-write dependencies
@@ -844,12 +844,12 @@ constraints f =
   foldMatch altLoadStoreConstraints [] f
 
 altRetConstraints (
-  op @ SingleOperation {oOpr = Copy {
+  op@SingleOperation {oOpr = Copy {
        oCopyIs = [General NullInstruction,
                   TargetInstruction TPOP2_r4_7_RET,
                   TargetInstruction TPOP2_r4_11_RET]}}
   :
-  or @ SingleOperation {oOpr = Natural Branch {
+  or@SingleOperation {oOpr = Natural Branch {
        oBranchIs = [General NullInstruction, TargetInstruction TBX_RET]}}
   :
   code) constraints =
@@ -859,13 +859,13 @@ altRetConstraints (
 altRetConstraints (_ : code) constraints = (code, constraints)
 
 altLoadStoreConstraints (
-  s1 @ SingleOperation {oOpr = Natural Linear {
+  s1@SingleOperation {oOpr = Natural Linear {
        oIs = General NullInstruction : is1}}
   :
-  s2 @ SingleOperation {oOpr = Natural Linear {
+  s2@SingleOperation {oOpr = Natural Linear {
        oIs = General NullInstruction : is2}}
   :
-  ds @ SingleOperation {oOpr = Natural Linear {
+  ds@SingleOperation {oOpr = Natural Linear {
        oIs = [General NullInstruction, TargetInstruction dsi]}}
   :
   code) constraints

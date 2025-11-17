@@ -13,6 +13,6 @@ module Unison.Tools.Analyze.FilterOverhead (filterOverhead) where
 
 import Unison
 
-filterOverhead f @ Function {fCode = code} _target =
+filterOverhead f@Function {fCode = code} _target =
     let code' = filterCode isBarrier code
     in f {fCode = code'}

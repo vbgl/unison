@@ -16,7 +16,7 @@ import Data.Maybe
 
 import Unison
 
-movePhiUndefs f @ Function {fCode = code} _ =
+movePhiUndefs f@Function {fCode = code} _ =
     let code' = fixpoint movePhiUndef code
     in f {fCode = code'}
 
@@ -32,7 +32,7 @@ movePhiUndef code =
 
 isPhiDefine code = isJust . definePhi code
 
-definePhi code d @ SingleOperation {oOpr = Virtual Define {oDefineDs = [t]}} =
+definePhi code d@SingleOperation {oOpr = Virtual Define {oDefineDs = [t]}} =
   case users t (flatten code) of
    [p] | isPhi p && oprBlock code d == oprBlock code p -> Just p
    _ -> Nothing

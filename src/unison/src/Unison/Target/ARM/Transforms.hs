@@ -46,8 +46,8 @@ import Unison.Target.ARM.Registers()
 extractReturnRegs _ (
   c
   :
-  o @ SingleOperation {oOpr = Virtual
-                               (Delimiter oi @ (Out {oOuts = outs}))}
+  o@SingleOperation {oOpr = Virtual
+                               (Delimiter oi@(Out {oOuts = outs}))}
   :
   rest) _ | isTailCall c && all isRegister outs =
    (
@@ -61,7 +61,7 @@ extractReturnRegs _ (o : rest) _ = (rest, [o])
 -- This transformation adds 16-bits Thumb alternatives when possible, according
 -- to the logic in Thumb2SizeReduction
 
-addThumbAlternatives goals o @ SingleOperation {
+addThumbAlternatives goals o@SingleOperation {
   oOpr = Natural Linear {oIs = [TargetInstruction i]}} =
   let o' = addThumbAlternative o (M.lookup i reduceMap) i
   in if none ((==) Size) goals then
@@ -364,8 +364,8 @@ expandMEMCPY f (
 expandMEMCPY _ (o : rest) _ = (rest, [o])
 
 handlePromotedOperands _ (
-  o @ SingleOperation {
-    oOpr = Natural ni @ (Linear {oIs = is, oDs = [t]})}
+  o@SingleOperation {
+    oOpr = Natural ni@(Linear {oIs = is, oDs = [t]})}
   :
   rest) _ | isTemporary t &&
             all (\(TargetInstruction i) -> isCpsrDef i) is &&
@@ -379,7 +379,7 @@ handlePromotedOperands _ (
 
 handlePromotedOperands _ (o : rest) _ = (rest, [o])
 
-defineFP f @ Function {fCode = code} =
+defineFP f@Function {fCode = code} =
   let fcode = flatten code
       isRegFun o = isFun o && not (isTailCallFun fcode o)
   in if any isRegFun fcode then
@@ -440,7 +440,7 @@ isTPop  i = i `elem` [TPOP_r4_7,  TPOP_r8_11]
 -}
 
 expandRets _ (
-  op @ SingleOperation {
+  op@SingleOperation {
      oOpr = Natural Linear {oIs = [General NullInstruction,
                                    TargetInstruction TPOP2_r4_7,
                                    TargetInstruction TPOP2_r4_11]}}
@@ -499,7 +499,7 @@ isSingleStore = isMandNaturalWith ((==) T2STRi12)
 combineLoadStores _ (
   uc1
   :
-  ld1 @ SingleOperation {oOpr = Natural Linear {
+  ld1@SingleOperation {oOpr = Natural Linear {
                             oIs = ld1is,
                             oUs = MOperand {altTemps = uts1} : off1 : pred1,
                             oDs = [MOperand {altTemps = [tr1]}]}}
@@ -508,7 +508,7 @@ combineLoadStores _ (
   :
   uc2
   :
-  ld2 @ SingleOperation {oOpr = Natural Linear {
+  ld2@SingleOperation {oOpr = Natural Linear {
                             oIs = ld2is,
                             oUs = MOperand {altTemps = uts2} : off2 : pred2,
                             oDs = [MOperand {altTemps = [tr2]}]}}
@@ -559,7 +559,7 @@ combineLoadStores _ (
   :
   uc12
   :
-  st1 @ SingleOperation {oOpr = Natural Linear {
+  st1@SingleOperation {oOpr = Natural Linear {
                             oIs = st1is,
                             oUs = MOperand {altTemps = ts1} :
                                   MOperand {altTemps = uts1} : off1 : pred1}}
@@ -568,7 +568,7 @@ combineLoadStores _ (
   :
   uc22
   :
-  st2 @ SingleOperation {oOpr = Natural Linear {
+  st2@SingleOperation {oOpr = Natural Linear {
                             oIs = st2is,
                             oUs = MOperand {altTemps = ts2} :
                                   MOperand {altTemps = uts2} : off2 : pred2}}
@@ -606,7 +606,7 @@ combineLoadStores _ (
 combineLoadStores _ (
   uc1
   :
-  st1 @ SingleOperation {oOpr = Natural Linear {
+  st1@SingleOperation {oOpr = Natural Linear {
                             oIs = st1is,
                             oUs = MOperand {altTemps = ts1} :
                                   MOperand {altTemps = uts1} : off1 : pred1},
@@ -614,7 +614,7 @@ combineLoadStores _ (
   :
   uc2
   :
-  st2 @ SingleOperation {oOpr = Natural Linear {
+  st2@SingleOperation {oOpr = Natural Linear {
                             oIs = st2is,
                             oUs = MOperand {altTemps = ts2} :
                                   MOperand {altTemps = uts2} : off2 : pred2}}
@@ -642,14 +642,14 @@ isCombinableStore is = TargetInstruction T2STRi12 `elem` is
 
 mkOperand pid id ts = mkMOperand (pid + id) ts Nothing
 
-applyToAltTemps f [p @ MOperand {altTemps = ts}] = [p {altTemps = f ts}]
+applyToAltTemps f [p@MOperand {altTemps = ts}] = [p {altTemps = f ts}]
 
 offBy n (Bound MachineImm {miValue = off1})
         (Bound MachineImm {miValue = off2}) =
   abs (off1 - off2) == n
 offBy _ _ _ = False
 
-reorderCalleeSavedSpills f @ Function {fCode = code}
+reorderCalleeSavedSpills f@Function {fCode = code}
   | any isReturnBlock code =
     let code1 = mapIf isEntryBlock (moveFP . reoderCalleeSavedStores) code
         code2 = mapIf isReturnBlock reoderCalleeSavedLoads code1
@@ -677,7 +677,7 @@ isTerm o = isBranch o || isTailCall o
 
 -- Activate the SP adjustment operations if there are non-fixed stack objects or
 --  SP-relative stores (typically to store function call arguments).
-enforceStackFrame f @ Function {fCode = code, fStackFrame = frame} =
+enforceStackFrame f@Function {fCode = code, fStackFrame = frame} =
   let fcode = flatten code
       pcg   = P.fromGraph $ CG.fromFunction f
       t2rs  = M.fromListWith (++) [(undoPreAssign t, maybeToList $ tReg t)
@@ -705,7 +705,7 @@ isSPRegister Register {regId = TargetRegister SP} = True
 isSPRegister _ = False
 
 activateSPAdjusts
-  o @ SingleOperation {oOpr = Natural spo @ Linear {
+  o@SingleOperation {oOpr = Natural spo @ Linear {
                           oIs = [General NullInstruction,
                                  TargetInstruction i]}}
   | isSPAdjustInstr i =

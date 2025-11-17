@@ -15,7 +15,7 @@ import Data.List
 
 import Unison
 
-liftMemInfo f @ Function {fCode = code} _target =
+liftMemInfo f@Function {fCode = code} _target =
     let code'  = mapToOperationInBlocks liftMemInfoInOpr code
         code'' = map expandAllMemObjects code'
     in f {fCode = code''}
@@ -33,7 +33,7 @@ liftMem m o
   | isMem o = Memory (show m)
   | otherwise = o
 
-expandAllMemObjects b @ Block {bCode = code} =
+expandAllMemObjects b@Block {bCode = code} =
   let mems  = filter isMem $ conNub [readObjects o ++ writeObjects o | o <- code]
       code' = map (expandAllMemObjectInOpr mems) code
   in b {bCode = code'}

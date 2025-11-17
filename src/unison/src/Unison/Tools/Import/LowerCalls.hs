@@ -20,10 +20,10 @@ lowerCalls mf target =
       mf' = mapToMachineBlock (lowerCallInBlock (itf, oif)) mf
   in mf'
 
-lowerCallInBlock fs mb @ MachineBlock {mbInstructions = mis} =
+lowerCallInBlock fs mb@MachineBlock {mbInstructions = mis} =
   mb {mbInstructions = concatMap (lowerCall fs) mis}
 
-lowerCall (itf, oif) mi @ MachineSingle {msOpcode = MachineTargetOpc i,
+lowerCall (itf, oif) mi@MachineSingle {msOpcode = MachineTargetOpc i,
                                          msOperands = mos}
   | isMachineCallOrTailCall itf mi =
     let oi  = oif i

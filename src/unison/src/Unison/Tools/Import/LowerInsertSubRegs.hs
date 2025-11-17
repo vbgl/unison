@@ -34,9 +34,9 @@ lowerInsertInstrSubRegs stf tid2rc (accIs, id) (mi @
   in lowerInsertInstrSubRegs stf tid2rc (accIs ++ mis, id') is
 
 lowerInsertInstrSubRegs stf tid2rc (accIs, id) (mi @
-  MachineSingle {msOperands = [d @ MachineTemp {mtId = did},
+  MachineSingle {msOperands = [d@MachineTemp {mtId = did},
                                _,
-                               s2 @ MachineTemp {}, sr]} : is)
+                               s2@MachineTemp {}, sr]} : is)
   | isMachineSubregToReg mi =
   let subreg     = toSubRegIndex sr
       (id', mis) =
@@ -60,20 +60,20 @@ lowerInsertInstrSubRegs stf tid2rc (accIs, id) (mi : is) =
 
 lowerInsertInstrSubRegs _ _ (is, acc) [] = (is, acc)
 
-lowerInsertInstrSubRegs' [CopySubRegIndex] id mi @ MachineSingle {msOperands = [d, _, s2, _]}
+lowerInsertInstrSubRegs' [CopySubRegIndex] id mi@MachineSingle {msOperands = [d, _, s2, _]}
   = let cp = mi {msOpcode = mkMachineVirtualOpc COPY, msOperands = [d, s2]}
   in (id, [cp])
-lowerInsertInstrSubRegs' [LowSubRegIndex] id mi @ MachineSingle {msOperands = [d, s1, s2, _]}
+lowerInsertInstrSubRegs' [LowSubRegIndex] id mi@MachineSingle {msOperands = [d, s1, s2, _]}
   = let t  = mkSimpleMachineTemp id
         hi = mi {msOpcode = mkMachineVirtualOpc HIGH, msOperands = [t, s1]}
         co = mi {msOpcode = mkMachineVirtualOpc COMBINE, msOperands = [d, s2, t]}
     in (id + 1, [hi, co])
-lowerInsertInstrSubRegs' [HighSubRegIndex] id mi @ MachineSingle {msOperands = [d, s1, s2, _]}
+lowerInsertInstrSubRegs' [HighSubRegIndex] id mi@MachineSingle {msOperands = [d, s1, s2, _]}
   = let t  = mkSimpleMachineTemp id
         lo = mi {msOpcode = mkMachineVirtualOpc LOW, msOperands = [t, s1]}
         co = mi {msOpcode = mkMachineVirtualOpc COMBINE, msOperands = [d, t, s2]}
     in (id + 1, [lo, co])
-lowerInsertInstrSubRegs' [LowSubRegIndex, LowSubRegIndex] id mi @ MachineSingle {msOperands = [d, s1, s2, _]}
+lowerInsertInstrSubRegs' [LowSubRegIndex, LowSubRegIndex] id mi@MachineSingle {msOperands = [d, s1, s2, _]}
   = let t     = mkSimpleMachineTemp id
         t'    = mkSimpleMachineTemp (id + 1)
         t''   = mkSimpleMachineTemp (id + 2)
@@ -84,7 +84,7 @@ lowerInsertInstrSubRegs' [LowSubRegIndex, LowSubRegIndex] id mi @ MachineSingle 
         hi'   = mi {msOpcode = mkMachineVirtualOpc HIGH,    msOperands = [t''', s1]}
         co'   = mi {msOpcode = mkMachineVirtualOpc COMBINE, msOperands = [d, t'', t''']}
     in (id + 4, [lo, hi, co, hi', co'])
-lowerInsertInstrSubRegs' [HighSubRegIndex, LowSubRegIndex] id mi @ MachineSingle {msOperands = [d, s1, s2, _]}
+lowerInsertInstrSubRegs' [HighSubRegIndex, LowSubRegIndex] id mi@MachineSingle {msOperands = [d, s1, s2, _]}
   = let t     = mkSimpleMachineTemp id
         t'    = mkSimpleMachineTemp (id + 1)
         t''   = mkSimpleMachineTemp (id + 2)
@@ -95,7 +95,7 @@ lowerInsertInstrSubRegs' [HighSubRegIndex, LowSubRegIndex] id mi @ MachineSingle
         hi    = mi {msOpcode = mkMachineVirtualOpc HIGH,    msOperands = [t''', s1]}
         co'   = mi {msOpcode = mkMachineVirtualOpc COMBINE, msOperands = [d, t'', t''']}
     in (id + 4, [lo, lo', co, hi, co'])
-lowerInsertInstrSubRegs' [LowSubRegIndex, LowSubRegIndex, LowSubRegIndex] id mi @ MachineSingle {msOperands = [d, s1, s2, _]}
+lowerInsertInstrSubRegs' [LowSubRegIndex, LowSubRegIndex, LowSubRegIndex] id mi@MachineSingle {msOperands = [d, s1, s2, _]}
   = let t       = mkSimpleMachineTemp id
         t'      = mkSimpleMachineTemp (id + 1)
         t''     = mkSimpleMachineTemp (id + 2)
@@ -112,7 +112,7 @@ lowerInsertInstrSubRegs' [LowSubRegIndex, LowSubRegIndex, LowSubRegIndex] id mi 
         hi''    = mi {msOpcode = mkMachineVirtualOpc HIGH,    msOperands = [t'''''', s1]}
         co''    = mi {msOpcode = mkMachineVirtualOpc COMBINE, msOperands = [d, t''''', t'''''']}
     in (id + 7, [lo, lo', hi, co, hi', co', hi'', co''])
-lowerInsertInstrSubRegs' [HighSubRegIndex, LowSubRegIndex, LowSubRegIndex] id mi @ MachineSingle {msOperands = [d, s1, s2, _]}
+lowerInsertInstrSubRegs' [HighSubRegIndex, LowSubRegIndex, LowSubRegIndex] id mi@MachineSingle {msOperands = [d, s1, s2, _]}
   = let t       = mkSimpleMachineTemp id
         t'      = mkSimpleMachineTemp (id + 1)
         t''     = mkSimpleMachineTemp (id + 2)

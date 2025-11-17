@@ -79,7 +79,7 @@ meet x y = error $ "unmatched: meet " ++ show x ++ " " ++ show y
 
 equivalent o o' = oOpr o == oOpr o'
 
-canonicalize const @ ConstOpr {constOpr = o} =
+canonicalize const@ConstOpr {constOpr = o} =
     let o'  = renameOperationId $ renameTemps o
     in const {constOpr = o'}
 

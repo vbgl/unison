@@ -14,7 +14,7 @@ module Unison.Tools.Augment.AddPrologueEpilogue (addPrologueEpilogue) where
 import Unison
 import Unison.Target.API
 
-addPrologueEpilogue f @ Function {fCode = code} target =
+addPrologueEpilogue f@Function {fCode = code} target =
     let apf    = addPrologue target
         aef    = addEpilogue target
         ids    = newIndexes $ flatten code

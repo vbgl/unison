@@ -232,7 +232,7 @@ isJALRCall SingleOperation {
 isJALRCall _ = False
 
 -- | Transforms copy instructions into natural instructions
-fromCopy o @ Copy {oCopyIs = [TargetInstruction i], oCopyS = s, oCopyD = d}
+fromCopy o@Copy {oCopyIs = [TargetInstruction i], oCopyS = s, oCopyD = d}
   | i `elem` [MOVE, MFLO, MFHI, MTLO, MTHI] = toLinear o
   | i `elem` [MOVE_F, MOVE_D] = toLinear  (o { oCopyIs = [TargetInstruction $ fromCopyInstr i] })
   | i `elem` [STORE, STORE_F, STORE_D] =
@@ -319,7 +319,7 @@ preProcess = [addFrameIndex, explicateRA]
 
 addFrameIndex = mapToTargetMachineInstruction addFrameIndexInstr
 
-addFrameIndexInstr mi @ MachineSingle {msOpcode = opcode,
+addFrameIndexInstr mi@MachineSingle {msOpcode = opcode,
                                        msOperands = operands}
   | any isMachineFrameIndex operands &&
     any isTemporaryInfo (fst $ operandInfo [] $ mopcTarget opcode) =
@@ -328,7 +328,7 @@ addFrameIndexInstr mi @ MachineSingle {msOpcode = opcode,
 
 explicateRA = mapToTargetMachineInstruction explicateRAInInstr
 
-explicateRAInInstr mi @ MachineSingle {msOpcode = MachineTargetOpc RetRA} =
+explicateRAInInstr mi@MachineSingle {msOpcode = MachineTargetOpc RetRA} =
   mi {msOpcode   = mkMachineTargetOpc PseudoReturn,
       msOperands = [mkMachineReg RA]}
 explicateRAInInstr mi = mi
@@ -344,7 +344,7 @@ postProcess to = [expandPseudosEarly to, if keepNops to then id else cleanNops,
 expandPseudosEarly to = mapToMachineBlock (expandBlockPseudos
                                            (expandPseudoEarly to))
 
-expandPseudoEarly to mi @ MachineSingle {msOpcode = MachineTargetOpc LoadGPDisp}
+expandPseudoEarly to mi@MachineSingle {msOpcode = MachineTargetOpc LoadGPDisp}
   | not (unitLatency to) =
   let v0  = mkMachineReg V0
       gpd = mkMachineExternal "_gp_disp"
@@ -352,7 +352,7 @@ expandPseudoEarly to mi @ MachineSingle {msOpcode = MachineTargetOpc LoadGPDisp}
       mi2 = mi {msOpcode = mkMachineTargetOpc ADDiu, msOperands = [v0, v0, gpd]}
   in [[mi1],[mi2]]
 
-expandPseudoEarly _ mi @ MachineSingle {msOpcode = MachineTargetOpc PseudoCVT_S_W,
+expandPseudoEarly _ mi@MachineSingle {msOpcode = MachineTargetOpc PseudoCVT_S_W,
                                    msOperands = [fi, ri]} =
   let mi1 = mi {msOpcode = mkMachineTargetOpc MTC1, msOperands = [fi, ri]}
       mi2 = mi {msOpcode = mkMachineTargetOpc CVT_S_W, msOperands = [fi, fi]}
@@ -361,13 +361,13 @@ expandPseudoEarly _ mi = [[mi]]
 
 expandPseudos = mapToMachineBlock (expandBlockPseudos expandPseudo)
 
-expandPseudo mi @ MachineSingle {msOpcode = MachineTargetOpc i}
+expandPseudo mi@MachineSingle {msOpcode = MachineTargetOpc i}
   | isDelaySlotNOPInstr i =
   let mi1 = mi {msOpcode = mkMachineTargetOpc (delaySlotInstr i)}
       mi2 = mkMachineSingle (mkMachineTargetOpc NOP) [] []
   in [[mi1, mi2]]
 
-expandPseudo mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+expandPseudo mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                                  msOperands = mos} =
   [[expandSimple mi (i, mos)]]
 expandPseudo mi = [[mi]]
@@ -402,7 +402,7 @@ isSingleNop _ = False
 -- Unbundle singleton bundles created during pseudo expansion.
 unbundleSingletons = mapToMachineBlock unbundleSingletonsInBlock
 
-unbundleSingletonsInBlock mb @ MachineBlock {mbInstructions = mis} =
+unbundleSingletonsInBlock mb@MachineBlock {mbInstructions = mis} =
   mb {mbInstructions = map unbundleSingleton mis}
 
 unbundleSingleton MachineBundle {mbInstrs = [mi]} = mi
@@ -410,11 +410,11 @@ unbundleSingleton mi = mi
 
 removeFrameIndex = mapToMachineInstruction removeFrameIndexInstr
 
-removeFrameIndexInstr mi @ MachineSingle {msOpcode = MachineTargetOpc i,
+removeFrameIndexInstr mi@MachineSingle {msOpcode = MachineTargetOpc i,
                                           msOperands = mops}
   | "_fi" `isSuffixOf`  (show i) =
     let mops' = case mops of
-                  [r @ MachineReg {}, off @ MachineImm {},
+                  [r@MachineReg {}, off @ MachineImm {},
                    MachineImm {miValue = 0}] ->
                     [r, mkMachineReg SP, off]
                     -- FIXME: post-process other patterns similary.
@@ -426,24 +426,24 @@ removeFi i = read $ dropSuffix "_fi" (show i)
 
 normalizeDelaySlots to = mapToMachineBlock (normalizeDelaySlotInBlock to)
 
-normalizeDelaySlotInBlock to mb @ MachineBlock {mbInstructions = mis} =
+normalizeDelaySlotInBlock to mb@MachineBlock {mbInstructions = mis} =
   let mis1 = concatMap (normalizeDelaySlot to) mis
       mis2 = map removeBundleHead mis1
   in mb {mbInstructions = mis2}
 
-normalizeDelaySlot _ mb @ MachineBundle {
-  mbInstrs = [mi, mbi @ MachineSingle {msOpcode = MachineTargetOpc i}]}
+normalizeDelaySlot _ mb@MachineBundle {
+  mbInstrs = [mi, mbi@MachineSingle {msOpcode = MachineTargetOpc i}]}
   | isDelaySlotInstr i = [mb {mbInstrs = [mbi, mi]}]
 normalizeDelaySlot to MachineBundle {
-  mbInstrs = [mi, mbi @ MachineSingle {msOpcode = MachineTargetOpc i}]}
+  mbInstrs = [mi, mbi@MachineSingle {msOpcode = MachineTargetOpc i}]}
   | isDelaySlotInstr i && noDelaySlots to = [mi, mbi]
 normalizeDelaySlot to MachineBundle {
-  mbInstrs = [mbi @ MachineSingle {msOpcode = MachineTargetOpc i}, mi]}
+  mbInstrs = [mbi@MachineSingle {msOpcode = MachineTargetOpc i}, mi]}
   | isDelaySlotInstr i && noDelaySlots to = [mi, mbi]
 normalizeDelaySlot _ mi = [mi]
 
 -- This assumes all remaining bundles are branches with delay slots.
-removeBundleHead mb @ MachineBundle {} = mb {mbHead = False}
+removeBundleHead mb@MachineBundle {} = mb {mbHead = False}
 removeBundleHead mi = mi
 
 -- | Gives a list of function transformers

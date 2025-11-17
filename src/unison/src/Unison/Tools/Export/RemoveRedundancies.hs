@@ -15,11 +15,11 @@ import qualified Data.Set as S
 
 import Unison
 
-removeRedundancies f @ Function {fCode = code} _target =
+removeRedundancies f@Function {fCode = code} _target =
     let code' = map removeBlockRedundancies code
     in f {fCode = code'}
 
-removeBlockRedundancies b @ Block {bCode = code} =
+removeBlockRedundancies b@Block {bCode = code} =
     b {bCode = map removeBundleRedundancies code}
 
 removeBundleRedundancies (Bundle code) =

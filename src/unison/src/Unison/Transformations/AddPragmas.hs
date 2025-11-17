@@ -15,7 +15,7 @@ module Unison.Transformations.AddPragmas (addPragmas)
 import Unison.Base
 import Unison.Util
 
-addPragmas ps f @ Function {fComments = comments} _ =
+addPragmas ps f@Function {fComments = comments} _ =
   let comments' = comments ++ map toComment ps
   in f {fComments = comments'}
 

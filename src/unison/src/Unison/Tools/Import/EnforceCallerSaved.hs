@@ -19,7 +19,7 @@ import Unison
 import Unison.Target.API
 import Unison.Target.RegisterArray
 
-enforceCallerSaved f @ Function {fCode = code} target =
+enforceCallerSaved f@Function {fCode = code} target =
     let csr   = map (mkRegister . mkTargetRegister) $ callerSaved target
         ra    = mkRegisterArray target 0
         r2as  = regAtoms ra
@@ -39,7 +39,7 @@ addCallerSaved regInfo csr (code, t) i
     in (code', t')
   | otherwise = (code, t)
 
-addFunctionOperands us ds (bi @ SingleOperation {oOpr = Virtual o @ Fun {}}) =
+addFunctionOperands us ds (bi@SingleOperation {oOpr = Virtual o @ Fun {}}) =
   bi {oOpr = Virtual o {oFunctionUs = (oFunctionUs o) ++ us,
                          oFunctionDs = (oFunctionDs o) ++ ds}}
 

@@ -13,6 +13,6 @@ module Unison.Tools.Linearize.RemovePhis (removePhis) where
 
 import Unison
 
-removePhis f @ Function {fCode = code} _target =
+removePhis f@Function {fCode = code} _target =
     let code' = filterCode (not . isPhi) code
     in f {fCode = code'}

@@ -18,13 +18,13 @@ import Unison.Target.API
 import qualified Unison.Graphs.BCFG as BCFG
 import Unison.Graphs.Util
 
-adjustPhiLabels f @ Function {fCode = code} target =
+adjustPhiLabels f@Function {fCode = code} target =
     let bif   = branchInfo target
         bcfg  = BCFG.fromFunction bif f
         code' = map (adjustPhiLabelsInBlock bcfg) code
     in f {fCode = code'}
 
-adjustPhiLabelsInBlock bcfg b @ Block {bLab = l, bCode = code} =
+adjustPhiLabelsInBlock bcfg b@Block {bLab = l, bCode = code} =
   b {bCode = map (adjustPhiLabels' bcfg l) code}
 
 adjustPhiLabels' bcfg l

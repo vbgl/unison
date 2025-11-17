@@ -21,7 +21,7 @@ import Unison.Target.Query
 -- This pass is needed since 'minizinc-solver' assumes that the indices of the
 -- instructions in an operation are increasing.
 
-reorderInstructions f @ Function {fCode = code} _target =
+reorderInstructions f@Function {fCode = code} _target =
     let im    = instructionManager $ flatten code
         code' = mapToOperationInBlocks (mapToInstructions (reoderIns im)) code
     in f {fCode = code'}

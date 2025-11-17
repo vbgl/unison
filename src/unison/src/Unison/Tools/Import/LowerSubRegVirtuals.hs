@@ -19,7 +19,7 @@ import Data.List.Split
 import Control.Arrow
 import qualified Data.Map as M
 
-lowerSubRegVirtuals mf @ MachineFunction {} target =
+lowerSubRegVirtuals mf@MachineFunction {} target =
   let stf      = subRegIndexType target
       tid2rc   = registerClassMap mf
       newId    = newMachineTempId mf
@@ -28,8 +28,8 @@ lowerSubRegVirtuals mf @ MachineFunction {} target =
   in mf'
 
 lowerSubRegVirtual stf tid2rc (accIs, id) (mi @
-  MachineSingle {msOperands = [d @ MachineTemp {},
-                               s @ MachineTemp {mtId = sid}, sr]} : mis)
+  MachineSingle {msOperands = [d@MachineTemp {},
+                               s@MachineTemp {mtId = sid}, sr]} : mis)
   | isMachineExtractSubReg mi =
     let srs = stf (tid2rc M.! sid) $ toSubRegIndex sr
         mes = makeExtract d s id srs
@@ -78,7 +78,7 @@ mkMachineExtract sr mos =
   in mkMachineSingle (mkMachineVirtualOpc opcode) [] mos
 
 -- Produce a tree of combines recursively
-makeCombine d _ (left @ [_], right @ [_]) =
+makeCombine d _ (left@[_], right @ [_]) =
   let (low, high) = orderCombineOperands (left, right)
   in [mkMachineCombine [d, fst $ head low, fst $ head high]]
 makeCombine d id (left, right) =

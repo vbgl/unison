@@ -19,7 +19,7 @@ import Unison.Analysis.FrameOffsets
 
 -- This pass replaces stack size markers by the actual size of the stack.
 
-lowerFrameSize f @ Function {fCode = code, fFixedStackFrame = fobjs,
+lowerFrameSize f@Function {fCode = code, fFixedStackFrame = fobjs,
                              fStackFrame = objs} _ =
   let size     = frameSize (fobjs ++ objs)
       mfsToImm = M.fromList

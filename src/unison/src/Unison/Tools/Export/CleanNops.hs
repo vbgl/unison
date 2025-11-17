@@ -21,16 +21,16 @@ cleanNops f target =
       n = oTargetInstr $ fromSingleton $ oIs nf
   in mapToMachineBlock (cleanBlockNops n) f
 
-cleanBlockNops n mi @ MachineBlock {mbInstructions = mis} =
+cleanBlockNops n mi@MachineBlock {mbInstructions = mis} =
     let mis' = map (cleanBundleNops n) mis
     in mi {mbInstructions = mis'}
 
 cleanBundleNops n MachineBundle {
-  mbInstrs = [mi @ MachineSingle {msOpcode = MachineTargetOpc n'}]}
+  mbInstrs = [mi@MachineSingle {msOpcode = MachineTargetOpc n'}]}
     | n == n' = mi
 -- Headless bundles model branches with delay slots and should not be cleaned.
-cleanBundleNops _ mb @ MachineBundle {mbHead = False} = mb
-cleanBundleNops n mb @ MachineBundle {mbInstrs = mis} =
+cleanBundleNops _ mb@MachineBundle {mbHead = False} = mb
+cleanBundleNops n mb@MachineBundle {mbInstrs = mis} =
     case filter (not . hasTargetOpc n) mis of
       [mi] -> mi
       mis' -> mb {mbInstrs = mis'}

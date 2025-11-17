@@ -16,7 +16,7 @@ import MachineIR
 
 liftCustomProperties mf _target = mapToMachineInstruction liftCustomProperty mf
 
-liftCustomProperty mi @ MachineSingle {msOperands = mops, msProperties = mps} =
+liftCustomProperty mi@MachineSingle {msOperands = mops, msProperties = mps} =
   case find isMachineProperty mops of
     (Just MachineProperty {mpProperty = p}) ->
       let mops' = filter (not . isMachineProperty) mops

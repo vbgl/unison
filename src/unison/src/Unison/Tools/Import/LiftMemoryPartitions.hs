@@ -16,7 +16,7 @@ import MachineIR
 
 liftMemoryPartitions mf _target = mapToMachineInstruction liftMemoryPartition mf
 
-liftMemoryPartition mi @ MachineSingle {msOperands = mops, msProperties = mps} =
+liftMemoryPartition mi@MachineSingle {msOperands = mops, msProperties = mps} =
   case find isMachineMemPartition mops of
     (Just MachineMemPartition {mmpId = id}) ->
       let mops' = filter (not . isMachineMemPartition) mops

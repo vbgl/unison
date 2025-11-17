@@ -19,7 +19,7 @@ import Unison
 -- This pass replaces stack frame object indices in the code by actual
 -- immediates.
 
-lowerFrameIndices f @ Function {fCode = code, fFixedStackFrame = fobjs,
+lowerFrameIndices f@Function {fCode = code, fFixedStackFrame = fobjs,
                                 fStackFrame = objs} _target =
   let code'    = replaceFIsByImms True fobjs code
       code''   = replaceFIsByImms False objs code'

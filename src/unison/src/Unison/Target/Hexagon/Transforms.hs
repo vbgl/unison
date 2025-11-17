@@ -34,7 +34,7 @@ import Unison.Target.Hexagon.Registers
 import Unison.Target.Hexagon.SpecsGen.HexagonInstructionDecl
 import Unison.Target.Hexagon.HexagonRegisterDecl
 
-liftStackArgSize f @ Function {fCode = code} =
+liftStackArgSize f@Function {fCode = code} =
   let fcode = flatten code
       sizes = [s | Bound (MachineImm {miValue = s}) <-
                   [oSingleUse o | o <- fcode, isFrameSetup o]]
@@ -42,13 +42,13 @@ liftStackArgSize f @ Function {fCode = code} =
   in f {fStackArgSize = size}
 
 extractReturnRegs _ (
-  c @ SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
                                                 oVirtualCopyD = Register ret})}
   :
-  j @ SingleOperation {oOpr = Natural Branch {
+  j@SingleOperation {oOpr = Natural Branch {
                             oBranchIs = [TargetInstruction JMPret]}}
   :
-  o @ SingleOperation {oOpr = Virtual
+  o@SingleOperation {oOpr = Virtual
                                (Delimiter Out {oOuts = outs})}
   :
   rest) (ti, _, _) | Register ret `elem` outs =
@@ -63,10 +63,10 @@ extractReturnRegs _ (
    )
 
 extractReturnRegs _ (
-  c @ SingleOperation {oOpr = Natural nc}
+  c@SingleOperation {oOpr = Natural nc}
   :
-  o @ SingleOperation {oOpr = Virtual
-                               (Delimiter oi @ (Out {oOuts = outs}))}
+  o@SingleOperation {oOpr = Virtual
+                               (Delimiter oi@(Out {oOuts = outs}))}
   :
   rest) _ | all isRegister outs &&
             ((isCall c && oCallIs nc == [TargetInstruction J2_callr]) ||
@@ -99,8 +99,8 @@ foldStackPointerCopy _ (inst : rest) _ = (rest, [inst])
 isCopyUsing r c = isVirtualCopy c && r `elem` oUses c
 
 addAlternativeInstructions
-  o @ SingleOperation {
-          oOpr = Natural n @ (Linear {oIs = [TargetInstruction i], oUs = us})} =
+  o@SingleOperation {
+          oOpr = Natural n@(Linear {oIs = [TargetInstruction i], oUs = us})} =
   let is = map TargetInstruction (alternativeInstructions i us)
   in o {oOpr = Natural (n {oIs = nub is})}
 addAlternativeInstructions o = o
@@ -132,7 +132,7 @@ isJumpOpr o =
 -- o1: [p3{t3}] <- {C2_cmpeqi, C2_cmpeqi_combo} [p1{t1, ..}, p2{t2, ..}]
 
 expandJumps _ _ (
-  c @ SingleOperation {oOpr = Natural (Linear {
+  c@SingleOperation {oOpr = Natural (Linear {
                                           oIs = [TargetInstruction i],
                                           oUs = [_, u2],
                                           oDs = [MOperand {altTemps = [d]}]})}
@@ -154,7 +154,7 @@ expandJumps _ _ (
 -- o1: [] <- {J2_jumpf, J2_jumpf_nv, J4_combo_f_jumpnv_t} [p1{t1},b]
 
 expandJumps to f (
-  j @ SingleOperation {oOpr = Natural jo @ (Branch {
+  j@SingleOperation {oOpr = Natural jo @ (Branch {
                          oBranchIs = [TargetInstruction i],
                          oBranchUs = [MOperand {altTemps = ts}, _]})}
   :
@@ -194,12 +194,12 @@ newValueJump J2_jumpf = J2_jumpf_nv
 newValueCmpJump J2_jumpt = J4_combo_t_jumpnv_t
 newValueCmpJump J2_jumpf = J4_combo_f_jumpnv_t
 
-discardSpills f @ Function {fCode = code} =
+discardSpills f@Function {fCode = code} =
   let f1 = mapToOperation (discardSpill (flatten code)) f
       f2 = removeInactiveOperations f1
   in f2
 
-discardSpill code o @ SingleOperation {oOpr = co @ Copy {oCopyIs = is},
+discardSpill code o@SingleOperation {oOpr = co @ Copy {oCopyIs = is},
                                        oAs = as} =
   case fmap (\roid -> fromJust $ find (isId roid) code) (aRematOrigin as) of
    Just ro ->
@@ -224,14 +224,14 @@ isUsefulCopyFor _ ci | ci `elem` spillInstrs = False
 -- other copies are useful
 isUsefulCopyFor _ _ = True
 
-removeInactiveOperations f @ Function {fCode = code} =
+removeInactiveOperations f@Function {fCode = code} =
   let os    = filter isInactive (flatten code)
       ts    = concatMap extractTemps $ concatMap oDefOperands os
       code' = filterCode (\o -> not (o `elem` os)) code
       f'    = mapToOperation (mapToModelOperand (delAlts ts)) f {fCode = code'}
   in f'
 
-delAlts dts p @ MOperand {altTemps = ts} = p {altTemps = ts \\ dts}
+delAlts dts p@MOperand {altTemps = ts} = p {altTemps = ts \\ dts}
 
 isInactive o =
   case oInstructions o of
@@ -242,11 +242,11 @@ isInactive o =
 -- done in general as the side-effect would be too restrictive, we allow
 -- for example spills before stack allocation instructions in entry blocks.
 
-addCSLoadEffects f @ Function {fCode = code} =
+addCSLoadEffects f@Function {fCode = code} =
   let code' = mapIf isExitBlock addCSLoadEffect code
   in f {fCode = code'}
 
-addCSLoadEffect b @ Block {bCode = code} =
+addCSLoadEffect b@Block {bCode = code} =
     let code' = mapIf isCalleeSavedLoad
                 (mapToReads ((++ [OtherSideEffect R29]))) code
     in b {bCode = code'}
@@ -257,7 +257,7 @@ isCalleeSavedLoad o = isCopy o &&
 
 -- Allocate a region in the stack frame for passing arguments to callees
 
-allocateArgArea f @ Function {fStackArgSize = s,
+allocateArgArea f@Function {fStackArgSize = s,
                               fFixedStackFrame = fobjs, fStackFrame = objs}
   | s > 0 =
     let size   = frameSize (fobjs ++ objs)
@@ -270,7 +270,7 @@ allocateArgArea f @ Function {fStackArgSize = s,
 -- bytes. TODO: introduce this frame object in the same stack frame region
 -- as LLVM for consistency.
 
-alignAllocFrame f @ Function {fFixedStackFrame = fobjs,
+alignAllocFrame f@Function {fFixedStackFrame = fobjs,
                               fStackFrame = objs} =
   let size  = frameSize (fobjs ++ objs)
       r     = case size `rem` 8 of
@@ -284,14 +284,14 @@ alignAllocFrame f @ Function {fFixedStackFrame = fobjs,
 
 -- Offset frame indices before (-8) and after (+d) 'allocframe'
 
-shiftFrameOffsets f @ Function {fCode = code,
+shiftFrameOffsets f@Function {fCode = code,
                                 fFixedStackFrame = fobjs,
                                 fStackFrame = objs} =
   let d     = maximum $ (map (abs . foOffset) (fobjs ++ objs)) ++ [0]
       code' = map (shiftFrameOffsetsInBlock d) code
   in f {fCode = code'}
 
-shiftFrameOffsetsInBlock d b @ Block {bCode = code} =
+shiftFrameOffsetsInBlock d b@Block {bCode = code} =
   let ini = if isEntryBlock b then -8 else d
       (_, code') = mapAccumL (shiftFrameOffsetsInOpr d) ini code
   in b {bCode = code'}
@@ -301,7 +301,7 @@ shiftFrameOffsetsInOpr d off o =
       off' = if any isAllocFrameOpr (linearizeOpr o) then d else off
   in (off', o')
 
-shiftFrameOffset off (Bound mfi @ (MachineFrameIndex {})) =
+shiftFrameOffset off (Bound mfi@(MachineFrameIndex {})) =
   Bound $ mfi {mfiOffset = off}
 shiftFrameOffset _ p = p
 

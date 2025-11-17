@@ -21,7 +21,7 @@ import Unison.Target.Query
 
 data RematType = Source | Demat | Remat deriving (Eq, Ord, Show)
 
-selectInstructions instructions f @ Function {fCode = code} target =
+selectInstructions instructions f@Function {fCode = code} target =
     let fcf    = fromCopy target
         rif    = rematInstrs target
         fcode  = flatten code
@@ -47,7 +47,7 @@ selectInstruction fcf i2rt fcode o2inst o
     in maybeImplement fcf i2rt fcode inst o'
 
 maybeImplement fcf i2rt fcode (TargetInstruction i)
-  o @ SingleOperation {oAs = as}
+  o@SingleOperation {oAs = as}
   | isCopy o =
     case M.lookup i i2rt of
      -- Demat instructions are just removed from the final code.

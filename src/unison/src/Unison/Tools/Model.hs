@@ -63,7 +63,7 @@ modeler (scaleFreq, noCC) aux target f =
   toJSON (M.fromList (IS.parameters scaleFreq aux f target ++
                       RA.parameters noCC aux f target))
 
-auxiliarDataStructures target tight baseMir f @ Function {fCode = code} =
+auxiliarDataStructures target tight baseMir f@Function {fCode = code} =
   let rwlf  = readWriteLatency target
       oif   = operandInfo target
       rm    = resourceManager target

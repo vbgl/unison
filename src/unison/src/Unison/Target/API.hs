@@ -174,11 +174,11 @@ registerArray (ti, to) = tRegisterArray ti to
 registerAtoms (ti, to) = tRegisterAtoms ti to
 regClasses (ti, to) = tRegClasses ti to
 registers (ti, to) = tRegisters ti to
-infRegClassUsage (ti, to) rc @ InfiniteRegisterClass {} =
+infRegClassUsage (ti, to) rc@InfiniteRegisterClass {} =
     tInfRegClassUsage ti to rc
 infRegClassUsage _ _ =
     error ("infRegClassUsage is defined for infinite register classes only")
-infRegClassBound (ti, to) rc @ InfiniteRegisterClass {} =
+infRegClassBound (ti, to) rc@InfiniteRegisterClass {} =
     tInfRegClassBound ti to rc
 infRegClassBound _ _ =
     error ("infRegClassBound is defined for infinite register classes only")
@@ -187,7 +187,7 @@ callerSaved (ti, to) = tCallerSaved ti to
 calleeSaved (ti, to) = tCalleeSaved ti to
 reserved (ti, to) = tReserved ti to
 instructionType (ti, to) = tInstructionType ti to
-branchInfo (ti, to) bo @ SingleOperation {oOpr = Natural i}
+branchInfo (ti, to) bo@SingleOperation {oOpr = Natural i}
   | isBranch bo = Just (tBranchInfo ti to i)
 branchInfo _ _ = Nothing
 preProcess (ti, to) = tPreProcess ti to
@@ -197,9 +197,9 @@ copies (ti, to) = tCopies ti to
 rematInstrs (ti, to) = tRematInstrs ti to
 fromCopy (ti, to) o = o {oOpr = Natural (tFromCopy ti to (oOpr o))}
 operandInfo (ti, to) = tOperandInfo ti to
-alignedPairs (ti, to) o @ SingleOperation {oOpr = (Natural {})} =
+alignedPairs (ti, to) o@SingleOperation {oOpr = (Natural {})} =
   concat [[(p, q, tai) | (p, q) <- tAlignedPairs ti to i (oUses o, oDefs o)]
-         | tai @ (TargetInstruction i) <- oInstructions o]
+         | tai@(TargetInstruction i) <- oInstructions o]
 alignedPairs _ _ = []
 packedPairs (ti, to) o =
   nub $ concat [tPackedPairs ti to i (oUses o, oDefs o) |

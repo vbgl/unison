@@ -19,7 +19,7 @@ import Unison
 import Unison.Target.API
 import qualified Unison.Graphs.BCFG as BCFG
 
-removeUnreachableBlocks f @ Function {fCode = code} target =
+removeUnreachableBlocks f@Function {fCode = code} target =
     let bif   = branchInfo target
         bcfg  = BCFG.fromFunction bif f
         rbids = S.fromList $ reachable (bNode (entryBlock code)) bcfg

@@ -328,10 +328,10 @@ operandInfo to i
 
 isComboNVCJ i = "combo" `isInfixOf` (show i)
 
-markAsBypass ti @ TemporaryInfo {} = ti {oiBypassing = True}
+markAsBypass ti@TemporaryInfo {} = ti {oiBypassing = True}
 markAsBypass pi = pi
 
-f32ToPredRegs ti @ TemporaryInfo {oiRegClass = RegisterClass F32} =
+f32ToPredRegs ti@TemporaryInfo {oiRegClass = RegisterClass F32} =
   ti {oiRegClass = RegisterClass PredRegs}
 f32ToPredRegs oi = oi
 
@@ -460,26 +460,26 @@ preProcess to = [mapToTargetMachineInstruction preprocessJRInstrs,
 
 -- This is so that we take the additional call cost cost of tail-call jumps
 -- in LLVM solutions when we run 'uni analyze'
-preprocessJRInstrs mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+preprocessJRInstrs mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                                        msOperands = MachineGlobalAddress {} : _}
   | i `elem` [J2_jump] = mi {msOpcode = mkMachineTargetOpc TCRETURNi}
 preprocessJRInstrs mi = mi
 
 foldSPCopies = mapToMachineBlock foldSPCopiesInBlock
 
-foldSPCopiesInBlock mb @ MachineBlock {mbInstructions = mis} =
+foldSPCopiesInBlock mb@MachineBlock {mbInstructions = mis} =
   let ts    = M.fromList [(t, mkMachineRegSP) | t <- catMaybes $ map spTemp mis]
       mis'  = filter (isNothing . spTemp) mis
       mis'' = map (mapToMachineOperand (applyMap ts)) mis'
   in mb {mbInstructions = mis''}
 
-spTemp ms @ MachineSingle {msOperands = [d, mo]}
+spTemp ms@MachineSingle {msOperands = [d, mo]}
     | isMachineCopy ms && isHexagonSP mo = Just d
 spTemp _ = Nothing
 
 addFrameIndex = mapToTargetMachineInstruction addFrameIndexInstr
 
-addFrameIndexInstr mi @ MachineSingle {msOpcode = MachineTargetOpc i,
+addFrameIndexInstr mi@MachineSingle {msOpcode = MachineTargetOpc i,
                                        msOperands = operands}
   | isMachineVirtual mi = mi
   | any isMachineFrameIndex operands &&
@@ -492,7 +492,7 @@ isHexagonSP _ = False
 
 constantExtend = mapToTargetMachineInstruction constantExtendInstr
 
-constantExtendInstr mi @ MachineSingle {msOpcode = opcode,
+constantExtendInstr mi@MachineSingle {msOpcode = opcode,
                                         msProperties = ps}
   | any isConstExtendedProperty ps =
     mi {msOpcode     = liftToTOpc constantExtendedInstr opcode,
@@ -506,10 +506,10 @@ isConstExtendedProperty =
 
 serialize = mapToMachineBlock serializeBlock
 
-serializeBlock mb @ MachineBlock {mbInstructions = mis} =
+serializeBlock mb@MachineBlock {mbInstructions = mis} =
   mb {mbInstructions = concatMap machineInstructionToList mis}
 
-machineInstructionToList ms @ MachineSingle {} = [ms]
+machineInstructionToList ms@MachineSingle {} = [ms]
 machineInstructionToList MachineBundle {mbInstrs = mis} = mis
 
 -- | Target dependent post-processing functions
@@ -522,7 +522,7 @@ postProcess = [lintStackAlignment,
 lintStackAlignment = mapToTargetMachineInstruction lintStackAlignmentInInstr
 
 lintStackAlignmentInInstr
-  mi @ MachineSingle {msOpcode = MachineTargetOpc mopc, msOperands = mos}
+  mi@MachineSingle {msOpcode = MachineTargetOpc mopc, msOperands = mos}
   | isMemAccessWithOff mopc =
       let imm = miValue $ fromJust $ find isMachineImm mos
           ali = memAccessAlignment mopc
@@ -532,9 +532,9 @@ lintStackAlignmentInInstr mi = mi
 
 constantDeExtend = mapToTargetMachineInstruction constantDeExtendInstr
 
-constantDeExtendInstr mi @ MachineBundle {mbInstrs = mis} =
+constantDeExtendInstr mi@MachineBundle {mbInstrs = mis} =
   mi {mbInstrs = map constantDeExtendInstr mis}
-constantDeExtendInstr mi @ MachineSingle {msOpcode = opcode,
+constantDeExtendInstr mi@MachineSingle {msOpcode = opcode,
                                           msProperties = ps}
   | isConstantExtended (mopcTarget opcode) =
     mi {msOpcode     = liftToTOpc nonConstantExtendedInstr opcode,
@@ -544,29 +544,29 @@ constantDeExtendInstr mi = mi
 removeFrameIndex = mapToTargetMachineInstruction removeFrameIndexInstr
 
 removeFrameIndexInstr
-  mi @ MachineSingle {msOpcode = MachineTargetOpc TFR_FI_fi,
+  mi@MachineSingle {msOpcode = MachineTargetOpc TFR_FI_fi,
                       msOperands = [r,
-                                    off @ MachineImm {},
+                                    off@MachineImm {},
                                     MachineImm {miValue = 0}]} =
   mi {msOpcode = mkMachineTargetOpc A2_addi,
       msOperands = [r, mkMachineRegSP, off]}
-removeFrameIndexInstr mi @ MachineSingle {msOpcode = MachineTargetOpc i,
+removeFrameIndexInstr mi@MachineSingle {msOpcode = MachineTargetOpc i,
                                           msOperands = mops}
   | i `elem` fiInstrs =
       let mopc' = mkMachineTargetOpc $ read $ dropSuffix "_fi" (show i)
           mops' = case mops of
-                    [off @ MachineImm {}, MachineImm {miValue = 0},
-                     r @ MachineReg {}] -> [mkMachineRegSP, off, r]
+                    [off@MachineImm {}, MachineImm {miValue = 0},
+                     r@MachineReg {}] -> [mkMachineRegSP, off, r]
                     -- Example: L2_loadri_io_fi [dst, base, off]
-                    [r @ MachineReg {},
+                    [r@MachineReg {},
                      MachineImm {miValue = base}, MachineImm {miValue = off}] ->
                             [r, mkMachineRegSP, mkMachineImm (base + off)]
                     -- TODO: what do we do with the non-offset value? (which is
                     -- non-zero)
-                    [off @ MachineImm {}, MachineImm {}, r @ MachineReg {}] ->
+                    [off@MachineImm {}, MachineImm {}, r @ MachineReg {}] ->
                       [mkMachineRegSP, off, r]
-                    [p @ MachineReg {}, off @ MachineImm {},
-                     MachineImm {miValue = 0}, r @ MachineReg {}] ->
+                    [p@MachineReg {}, off @ MachineImm {},
+                     MachineImm {miValue = 0}, r@MachineReg {}] ->
                       [p, mkMachineRegSP, off, r]
                     _ -> error ("unmatched: removeFrameIndexInstr " ++ show mi)
       in mi {msOpcode = mopc', msOperands = mops'}
@@ -576,7 +576,7 @@ mkMachineRegSP = mkMachineReg hexagonSP
 
 normalizeNewValueCmpJump = mapToMachineBlock normalizeNewValueCmpJumpInBlock
 
-normalizeNewValueCmpJumpInBlock mb @ MachineBlock {mbInstructions = mis} =
+normalizeNewValueCmpJumpInBlock mb@MachineBlock {mbInstructions = mis} =
   case find isCmpComboMachineInstr (concatMap miToList mis) of
    Just MachineSingle {msOpcode = MachineTargetOpc i,
                        msOperands = [_, src1, src2]} ->
@@ -591,7 +591,7 @@ isCmpComboMachineInstr MachineSingle {msOpcode = MachineTargetOpc i} =
 isCmpComboMachineInstr _ = False
 
 normalizeNewValueCmpJumpCombo ci mops
-  mi @ MachineSingle {msOpcode = MachineTargetOpc i, msOperands = [_, l]}
+  mi@MachineSingle {msOpcode = MachineTargetOpc i, msOperands = [_, l]}
   | isNewValueCmpJump i =
     [mi {msOpcode = mkMachineTargetOpc $ realNewValueJumpInstr ci i,
          msOperands = mops ++ [l]}]
@@ -613,7 +613,7 @@ isTrueNVJump J4_combo_f_jumpnv_t = False
 
 normalizeNVJumps = mapToTargetMachineInstruction normalizeNVJump
 
-normalizeNVJump mi @ MachineSingle {msOpcode = MachineTargetOpc i}
+normalizeNVJump mi@MachineSingle {msOpcode = MachineTargetOpc i}
   | isNVJmpInstr i =
       mi {msOpcode = mkMachineTargetOpc (externalNewValueJump i)}
 normalizeNVJump mi = mi
@@ -623,7 +623,7 @@ externalNewValueJump J2_jumpf_nv = J2_jumpfnew
 
 normalizeJRInstrs = concatMapToMachineInstruction normalizeJR
 
-normalizeJR mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+normalizeJR mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                                 msOperands = mops}
   | i == L2_deallocframe_linear =
     [mi {msOpcode = mkMachineTargetOpc L2_deallocframe, msOperands = []}]
@@ -639,14 +639,14 @@ normalizeJR mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
                         msOperands = [dst]}]
 normalizeJR MachineSingle {msOpcode = MachineTargetOpc i}
   | i `elem` [Ret_dealloc_merge, Jr_merge] = []
-normalizeJR ms @ MachineSingle {msOpcode = MachineTargetOpc i}
+normalizeJR ms@MachineSingle {msOpcode = MachineTargetOpc i}
   | i `elem` [TCRETURNi, TCRETURNi_ce] =
     [ms {msOpcode = mkMachineTargetOpc J2_jump}]
 normalizeJR mi = [mi]
 
 expandCondTransfers = mapToMachineBlock (expandBlockPseudos expandCondTransfer)
 
-expandCondTransfer mi @ MachineSingle {msOpcode   = MachineTargetOpc i,
+expandCondTransfer mi@MachineSingle {msOpcode   = MachineTargetOpc i,
                                        msOperands = [dst, cond, src1, src2]}
   | isCondTransferInstr i =
     let (_, new) = muxTransferInstr i
@@ -671,7 +671,7 @@ primitiveCondTransfer MachineImm {} False True  = C2_cmovenewif
 
 addJumpHints = mapToTargetMachineInstruction addJumpHint
 
-addJumpHint mi @ MachineSingle {msOpcode = MachineTargetOpc i,
+addJumpHint mi@MachineSingle {msOpcode = MachineTargetOpc i,
                                 msProperties = mps}
   | isJumpNew i || isNewValueCmpJump i =
     case find isMachineInstructionPropertyBranchTaken mps of
@@ -742,7 +742,7 @@ forbiddenNewValueConstraints fcode =
   concatMap (forbiddenNVForDef fcode) fcode
 
 forbiddenNVForDef fcode
-  d @ SingleOperation {oOpr = Natural Linear {
+  d@SingleOperation {oOpr = Natural Linear {
                           oIs = is,
                           oDs = [MOperand {altTemps = [t]}]}} =
     let us = potentialUsers t fcode
@@ -767,7 +767,7 @@ forbiddenNewValueConstraint pid tid did di uid ui =
             ImplementsExpr uid (TargetInstruction ui)])
 
 newValueCmpJumpComboConstraints (
-  c @ SingleOperation {oOpr = Natural (Linear {
+  c@SingleOperation {oOpr = Natural (Linear {
                                           oIs = is,
                                           oDs = [MOperand {altTemps = [d]}]})}
   :

@@ -16,13 +16,13 @@ import Data.Maybe
 
 import Unison
 
-killUnusedTemps f @ Function {fCode = code} _target =
+killUnusedTemps f@Function {fCode = code} _target =
     let uses       = nub $ tUses (flatten code)
         id         = newId code
         (code', _) = foldl (killUnusedTempsInBB uses) ([], id) code
     in f {fCode = code'}
 
-killUnusedTempsInBB uses (accCode, id) b @ Block {bCode = code} =
+killUnusedTempsInBB uses (accCode, id) b@Block {bCode = code} =
     let (code', id')  = foldl (killUnusedDefs uses) ([], id) code
     in (accCode ++ [b {bCode = code'}], id')
 

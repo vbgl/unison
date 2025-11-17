@@ -18,18 +18,18 @@ import Common.Util
 
 import Unison
 
-generalizeOperands f @ Function {fCode = code} _ =
+generalizeOperands f@Function {fCode = code} _ =
   let (_, code') = foldl generalizeOperandsInBlock (0, []) code
   in f {fCode = code'}
 
-generalizeOperandsInBlock (id, fcode) b @ Block {bCode = code} =
+generalizeOperandsInBlock (id, fcode) b@Block {bCode = code} =
   let (id', code') = foldl generalizeOperandsInInstr (id, []) code
   in (id', fcode ++ [b {bCode = code'}])
 
 -- (combine) operations with the same used temporaries must get different
 -- operand identifiers to be able to apply the alignment constraints.
 generalizeOperandsInInstr (id, code)
-  o @ SingleOperation {oOpr = Virtual ci @
+  o@SingleOperation {oOpr = Virtual ci @
                               Combine {oCombineLowU = lu, oCombineHighU = hu,
                                        oCombineD = d}} =
   let [lu', hu', d'] =

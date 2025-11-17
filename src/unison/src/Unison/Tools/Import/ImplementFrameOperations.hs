@@ -14,12 +14,12 @@ module Unison.Tools.Import.ImplementFrameOperations (implementFrameOperations) w
 import Unison
 import Unison.Target.API
 
-implementFrameOperations implementFrames f @ Function {fCode = code} target =
+implementFrameOperations implementFrames f@Function {fCode = code} target =
     let iff   = implementFrame target
         code' = map (implementFrameOperationsInBlock implementFrames iff) code
     in f {fCode = code'}
 
-implementFrameOperationsInBlock implementFrames iff b @ Block {bCode = code} =
+implementFrameOperationsInBlock implementFrames iff b@Block {bCode = code} =
     let code' = concatMap (implementFrameOperation implementFrames iff) code
     in b {bCode = code'}
 

@@ -16,12 +16,12 @@ import qualified Data.Set as S
 
 import Unison
 
-bundleOperations cycles f @ Function {fCode = code} _ =
+bundleOperations cycles f@Function {fCode = code} _ =
     let i2c   = M.fromList (zip (flatten code) cycles)
         bcode = map (toBundleBlock i2c) code
     in f {fCode = bcode}
 
-toBundleBlock i2c b @ Block {bCode = code} =
+toBundleBlock i2c b@Block {bCode = code} =
   let code' = filter isActive code
       is    = S.fromList code'
       i2c'  = M.filterWithKey (\i _ -> S.member i is) i2c

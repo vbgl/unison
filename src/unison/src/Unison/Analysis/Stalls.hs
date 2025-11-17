@@ -32,7 +32,7 @@ data BlockingResourceState r s =
     brsOffset     :: Integer
     } deriving (Eq, Ord, Show)
 
-stepCycle brs @ BlockingResourceState {brsOccupation = occ, brsOffset = off}
+stepCycle brs@BlockingResourceState {brsOccupation = occ, brsOffset = off}
   | off > 0  = brs {brsOffset = off - 1}
   | off == 0 = brs {brsOccupation = occ - 1}
 

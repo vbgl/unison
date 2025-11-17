@@ -19,7 +19,7 @@ addImplicitRegs mf target =
   let rwif = readWriteInfo target
   in mapToMachineInstruction (addImplicitRegsToInstr rwif) mf
 
-addImplicitRegsToInstr rwif mi @ MachineSingle {msOpcode = MachineTargetOpc i,
+addImplicitRegsToInstr rwif mi@MachineSingle {msOpcode = MachineTargetOpc i,
                                                 msOperands = mos} =
   let rws   = rwif (TargetInstruction i)
       imp   = [MachineReg u [mkMachineRegImplicit] |

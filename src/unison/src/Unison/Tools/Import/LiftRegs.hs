@@ -27,7 +27,7 @@ import qualified Unison.Graphs.ICFG as ICFG
 
 -- TODO: check that there should not be any 'orphan' after this pass
 
-liftRegs f @ Function {fCode = code} target =
+liftRegs f@Function {fCode = code} target =
     let rr    = map (mkRegister . mkTargetRegister) $ reserved target
         lr    = isLiftableRegister rr
         bif   = branchInfo target

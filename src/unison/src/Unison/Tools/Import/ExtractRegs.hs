@@ -17,7 +17,7 @@ import qualified Data.Map as M
 import Unison
 
 -- | This pass assumes that all registers in the code are only defined once
-extractRegs f @ Function {fCode = code} _target =
+extractRegs f@Function {fCode = code} _target =
     let fcode  = flatten code
         entry  = head fcode
         exits  = map blockOut (exitBlocks code)
@@ -27,7 +27,7 @@ extractRegs f @ Function {fCode = code} _target =
         code'' = preAssignTemps pas code'
     in f {fCode = code''}
 
-replaceRegsInBB r2t b @ Block {bCode = code} =
+replaceRegsInBB r2t b@Block {bCode = code} =
     b {bCode = map (replaceRegs (M.fromList r2t)) code}
 
 replaceRegs :: Ord r => M.Map (Operand r) TemporaryId ->

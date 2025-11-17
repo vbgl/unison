@@ -35,6 +35,6 @@ normalizePhiUses o =
     let us = concat [[t, mkBlockRef bid] | (t, bid) <- nub $ phiUses o]
     in mapToOperands (const us) id o
 
-maybeCopyMtFlags (MachineTemp {mtFlags = mtfs}, mt @ MachineTemp {}) =
+maybeCopyMtFlags (MachineTemp {mtFlags = mtfs}, mt@MachineTemp {}) =
   mt {mtFlags = mtfs}
 maybeCopyMtFlags (_, mo) = mo

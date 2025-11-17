@@ -163,7 +163,7 @@ useCopies = [mkNullInstruction] ++ map TargetInstruction [Move, Load]
 rematInstrs _ = Nothing
 
 -- | Transforms copy instructions into natural instructions
-fromCopy o @ Copy {oCopyIs = [TargetInstruction i], oCopyS = s, oCopyD = d}
+fromCopy o@Copy {oCopyIs = [TargetInstruction i], oCopyS = s, oCopyD = d}
   | i `elem` [Move] = toLinear o
   | i `elem` [Store] =
     Linear {oIs = [TargetInstruction (fromCopyInstr i)],

@@ -20,7 +20,7 @@ import MachineIR
 import Unison
 import Unison.Target.API
 
-liftBranchPredictions mf @ MachineFunction {mfBlocks = mbs} target =
+liftBranchPredictions mf@MachineFunction {mfBlocks = mbs} target =
   let itf  = instructionType target
       bif  = branchInfo target
       oif  = operandInfo target
@@ -28,7 +28,7 @@ liftBranchPredictions mf @ MachineFunction {mfBlocks = mbs} target =
       mf'  = mf {mfBlocks = mbs'}
   in mf'
 
-liftBranchPredictionInBlock fs mb @ MachineBlock {mbProperties   = mps,
+liftBranchPredictionInBlock fs mb@MachineBlock {mbProperties   = mps,
                                                   mbInstructions = mis} =
   case find isMachineBlockPropertySuccs mps of
     Nothing -> mb

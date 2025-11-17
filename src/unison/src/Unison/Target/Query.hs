@@ -133,7 +133,7 @@ instrLatency _ (General NullInstruction, _) = Nothing
 instrLatency _ (_, VirtualType (DelimiterType InType)) = Just 1
 instrLatency _ (_, VirtualType FunType) = Just 1
 instrLatency _ (General _, _) = Just 0
-instrLatency rm (ti @ TargetInstruction {}, _) =
+instrLatency rm (ti@TargetInstruction {}, _) =
     Just $ maybeMax 0 $ map (occupation . usage) (iUsages rm ti)
 
 -- | Gives the minimum data latency for the temporaries ts between instructions p
@@ -169,7 +169,7 @@ expandTemps t2l =
 
 mayAccessMemory f rwif i =
   let effs = f $ rwif i
-  in not $ null [m | m @ Memory {} <- effs]
+  in not $ null [m | m@Memory {} <- effs]
 
 mayLoad  = mayAccessMemory fst
 mayStore = mayAccessMemory snd

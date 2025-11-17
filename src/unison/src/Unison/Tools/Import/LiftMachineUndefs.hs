@@ -19,11 +19,11 @@ liftMachineUndefs mf _target =
   let mf' = mapToMachineBlock liftUndefsInBlock mf
   in mf'
 
-liftUndefsInBlock mb @ MachineBlock {mbInstructions = mis} =
+liftUndefsInBlock mb@MachineBlock {mbInstructions = mis} =
   let mb' = mb {mbInstructions = concatMap liftUndefsInInstr mis}
   in mb'
 
-liftUndefsInInstr mi @ MachineSingle {msOperands = mos} =
+liftUndefsInInstr mi@MachineSingle {msOperands = mos} =
   let mids = mapMaybe maybeMkImplicitDef mos
       mi'  = mi {msOperands = map maybeDefineTemp mos}
   in mids ++ [mi']
@@ -34,7 +34,7 @@ maybeMkImplicitDef mt
       in Just $ mkMachineSingle (mkMachineVirtualOpc IMPLICIT_DEF) [] [mt']
 maybeMkImplicitDef _ = Nothing
 
-maybeDefineTemp mt @ MachineTemp {mtFlags = fs} =
+maybeDefineTemp mt@MachineTemp {mtFlags = fs} =
   mt {mtFlags = filter (not . isMachineRegUndef) fs}
 maybeDefineTemp mo = mo
 

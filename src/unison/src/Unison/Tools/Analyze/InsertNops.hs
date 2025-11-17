@@ -23,7 +23,7 @@ import Unison.Target.Query
 import Unison.Target.RegisterArray
 import Unison.Analysis.Stalls
 
-insertNops f @ Function {fCode = code} target =
+insertNops f@Function {fCode = code} target =
     let oif     = operandInfo target . targetInst . oInstructions
         nf      = nop target
         ra      = mkRegisterArray target 0
@@ -37,7 +37,7 @@ insertNops f @ Function {fCode = code} target =
                   (insertBlockNops (oif, ovf, uf, cf, nf, arf)) id code
     in f {fCode = code'}
 
-insertBlockNops fs id b @ Block {bCode = code} =
+insertBlockNops fs id b@Block {bCode = code} =
     let blocked = S.empty :: S.Set (BlockingResourceState r s)
         ((_, id'),
          codes) = mapAccumL (insertNopsBefore fs) (blocked, id) code
@@ -47,8 +47,8 @@ insertBlockNops fs id b @ Block {bCode = code} =
 insertNopsBefore fs (blocked, id) o
     | not (isBundle o) = insertNopsBefore fs (blocked, id) (mkBundle [o])
 
-insertNopsBefore fs @ (oif, ovf, uf, cf, nf, arf) (blocked, id)
-  o @ Bundle {bundleOs = bos} =
+insertNopsBefore fs@(oif, ovf, uf, cf, nf, arf) (blocked, id)
+  o@Bundle {bundleOs = bos} =
     let -- Update blocked list after new cycle
         blocked'   = S.filter isActive $ S.map stepCycle blocked
         -- Compute whether there are stalls due to uses of blocked registers
@@ -99,7 +99,7 @@ longestStall ovf blocked (BlockingResourceState r l _) =
                  BlockingResourceState {brsOccupation = s} | s > 0 -> Just s
                  _ -> Nothing
 
-incrementOccupationBy l brs @ BlockingResourceState {brsOccupation = occ} =
+incrementOccupationBy l brs@BlockingResourceState {brsOccupation = occ} =
   brs {brsOccupation = occ + l}
 
 aliasesWith ovf (BlockingReg r)

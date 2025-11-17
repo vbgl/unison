@@ -16,14 +16,14 @@ import Data.Maybe
 
 import Unison
 
-removeUselessVirtuals f @ Function {fCode = code} _target =
+removeUselessVirtuals f@Function {fCode = code} _target =
     let code' = fixpoint removeUseless code
     in f {fCode = code'}
 
 removeUseless code = map (fixpoint (removeUselessInBlock fcode)) code
                        where fcode = flatten code
 
-removeUselessInBlock fcode b @ Block {bCode = code} =
+removeUselessInBlock fcode b@Block {bCode = code} =
   b {bCode = filter (isUseful fcode) code}
 
 isUseful fcode o

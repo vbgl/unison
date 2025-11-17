@@ -18,7 +18,7 @@ import Unison.Base
 import Unison.Util
 import Unison.Predicates
 
-propagatePhiCongruences f @ Function {fCode = code} _target =
+propagatePhiCongruences f@Function {fCode = code} _target =
     let phis        = concatMap collectPhis code
         sourcedCode = foldl sourceDef code phis
         sinkedCode  = foldl sinkUses sourcedCode phis

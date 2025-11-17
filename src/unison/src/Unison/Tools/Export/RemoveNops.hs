@@ -32,7 +32,7 @@ data CriticalResource r =
     CRRWObject (RWObject r)
     deriving (Eq, Ord, Show)
 
-removeNops f @ Function {fCode = code} target =
+removeNops f@Function {fCode = code} target =
     let oif   = operandInfo target
         rwlf  = readWriteLatency target
         iNop  = nop target
@@ -44,7 +44,7 @@ removeNops f @ Function {fCode = code} target =
         code' = map (removeBlockNops uf cf ovf nbf oif rwlf) code
     in f {fCode = code'}
 
-removeBlockNops uf cf ovf nbf oif rwlf b @ Block {bCode = code} =
+removeBlockNops uf cf ovf nbf oif rwlf b@Block {bCode = code} =
   let icode  = zip [1..] code
       deps   = foldr (criticalDependencies ovf oif) [] icode
       deps'  = map completeDep deps
@@ -65,15 +65,15 @@ criticalDependencies ovf oif (cycle, bundle) deps =
 newDependencies oif index o =
   let uinfo = fst $ oif (targetInst (oInstructions o))
   in [(CRRegister r, Nothing, Just (index, l), Nothing) |
-      (TemporaryInfo {oiLatency = l}, r @ Register {}) <- zip uinfo (oUses o),
+      (TemporaryInfo {oiLatency = l}, r@Register {}) <- zip uinfo (oUses o),
       l > 0]
 
 definedCRs oif o =
   let dinfo = snd $ oif (targetInst (oInstructions o))
   in [(CRRegister r, l)
-     | (TemporaryInfo {oiLatency = l}, r @ Register {}) <- zip dinfo (oDefs o)]
+     | (TemporaryInfo {oiLatency = l}, r@Register {}) <- zip dinfo (oDefs o)]
 
-updateDependency _ _ dep @ (_, Just _, Just _, Just _) = dep
+updateDependency _ _ dep@(_, Just _, Just _, Just _) = dep
 updateDependency ovf (cycle, defs) (r, Nothing, Just (u, ul), Nothing) =
   case find (\(r', _) -> aliasesWith ovf r r') defs of
     Just (_, dl) ->
@@ -81,7 +81,7 @@ updateDependency ovf (cycle, defs) (r, Nothing, Just (u, ul), Nothing) =
       in (r, Just (cycle, dl), Just (u, ul), Just slack)
     Nothing -> (r, Nothing, Just (u, ul), Nothing)
 
-completeDep dep @ (_, Just _, Just _, Just _) = dep
+completeDep dep@(_, Just _, Just _, Just _) = dep
 completeDep (r, Nothing, Just (u, ul), Nothing) =
   (r, Just (0, 1), Just (u, ul), Just (u - ul))
 
@@ -134,7 +134,7 @@ isNopBundle oNop (Bundle {bundleOs = [SingleOperation {oOpr = opr}]}) =
             oNop == opr
 isNopBundle _ _ = False
 
-removeNop cycle dep @ (r, Just (d, dl), Just (u, ul), Just s)
+removeNop cycle dep@(r, Just (d, dl), Just (u, ul), Just s)
   | cycle > d && cycle < u = (r, Just (d, dl), Just (u, ul), Just (s - 1))
   | otherwise = dep
 

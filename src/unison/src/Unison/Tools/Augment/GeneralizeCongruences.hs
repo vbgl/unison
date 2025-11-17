@@ -16,7 +16,7 @@ import Data.Maybe
 
 import Unison
 
-generalizeCongruences f @ Function {fCode = code, fCongruences = cs} _ =
+generalizeCongruences f@Function {fCode = code, fCongruences = cs} _ =
     let fcode = flatten code
         cs'   = map (generalizeCongruence fcode) cs
     in f {fCongruences = cs'}

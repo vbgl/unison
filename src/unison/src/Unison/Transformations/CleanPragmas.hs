@@ -17,7 +17,7 @@ import Data.Maybe
 import Unison.Base
 import Unison.Util
 
-cleanPragmas ts f @ Function {fComments = comments} _ =
+cleanPragmas ts f@Function {fComments = comments} _ =
   let comments' = foldl removePragma comments ts
   in f {fComments = comments'}
 
