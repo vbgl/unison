@@ -563,9 +563,9 @@ removeFrameIndexInstr mi@MachineSingle {msOpcode = MachineTargetOpc i,
                             [r, mkMachineRegSP, mkMachineImm (base + off)]
                     -- TODO: what do we do with the non-offset value? (which is
                     -- non-zero)
-                    [off@MachineImm {}, MachineImm {}, r @ MachineReg {}] ->
+                    [off@MachineImm {}, MachineImm {}, r@MachineReg {}] ->
                       [mkMachineRegSP, off, r]
-                    [p@MachineReg {}, off @ MachineImm {},
+                    [p@MachineReg {}, off@MachineImm {},
                      MachineImm {miValue = 0}, r@MachineReg {}] ->
                       [p, mkMachineRegSP, off, r]
                     _ -> error ("unmatched: removeFrameIndexInstr " ++ show mi)

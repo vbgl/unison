@@ -705,7 +705,7 @@ isSPRegister Register {regId = TargetRegister SP} = True
 isSPRegister _ = False
 
 activateSPAdjusts
-  o@SingleOperation {oOpr = Natural spo @ Linear {
+  o@SingleOperation {oOpr = Natural spo@Linear {
                           oIs = [General NullInstruction,
                                  TargetInstruction i]}}
   | isSPAdjustInstr i =

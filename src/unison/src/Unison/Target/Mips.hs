@@ -414,7 +414,7 @@ removeFrameIndexInstr mi@MachineSingle {msOpcode = MachineTargetOpc i,
                                           msOperands = mops}
   | "_fi" `isSuffixOf`  (show i) =
     let mops' = case mops of
-                  [r@MachineReg {}, off @ MachineImm {},
+                  [r@MachineReg {}, off@MachineImm {},
                    MachineImm {miValue = 0}] ->
                     [r, mkMachineReg SP, off]
                     -- FIXME: post-process other patterns similary.

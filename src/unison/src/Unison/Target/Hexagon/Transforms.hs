@@ -42,7 +42,7 @@ liftStackArgSize f@Function {fCode = code} =
   in f {fStackArgSize = size}
 
 extractReturnRegs _ (
-  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci@VirtualCopy {
                                                 oVirtualCopyD = Register ret})}
   :
   j@SingleOperation {oOpr = Natural Branch {
@@ -154,7 +154,7 @@ expandJumps _ _ (
 -- o1: [] <- {J2_jumpf, J2_jumpf_nv, J4_combo_f_jumpnv_t} [p1{t1},b]
 
 expandJumps to f (
-  j@SingleOperation {oOpr = Natural jo @ (Branch {
+  j@SingleOperation {oOpr = Natural jo@(Branch {
                          oBranchIs = [TargetInstruction i],
                          oBranchUs = [MOperand {altTemps = ts}, _]})}
   :
@@ -199,7 +199,7 @@ discardSpills f@Function {fCode = code} =
       f2 = removeInactiveOperations f1
   in f2
 
-discardSpill code o@SingleOperation {oOpr = co @ Copy {oCopyIs = is},
+discardSpill code o@SingleOperation {oOpr = co@Copy {oCopyIs = is},
                                        oAs = as} =
   case fmap (\roid -> fromJust $ find (isId roid) code) (aRematOrigin as) of
    Just ro ->

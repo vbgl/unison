@@ -156,12 +156,12 @@ rs2ts _ (o : rest) _ = (rest, [o])
 -- | Matches call prologues and pre-assigns a temp to the return address
 
 normalizeCallPrologue _ (
-  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci@VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
   ca1 : ca2 : ca3 : ca4 : ca5
   :
-  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji@(Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' && all isVirtualCopy [ca1, ca2, ca3, ca4, ca5] =
   let t = mkTemp ti
@@ -173,12 +173,12 @@ normalizeCallPrologue _ (
     )
 
 normalizeCallPrologue _ (
-  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci@VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
   ca1 : ca2 : ca3 : ca4
   :
-  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji@(Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' && all isVirtualCopy [ca1, ca2, ca3, ca4] =
   let t = mkTemp ti
@@ -190,12 +190,12 @@ normalizeCallPrologue _ (
     )
 
 normalizeCallPrologue _ (
-  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci@VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
   ca1 : ca2 : ca3
   :
-  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji@(Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' && all isVirtualCopy [ca1, ca2, ca3] =
   let t = mkTemp ti
@@ -207,12 +207,12 @@ normalizeCallPrologue _ (
     )
 
 normalizeCallPrologue _ (
-  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci@VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
   ca1 : ca2
   :
-  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji@(Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' && all isVirtualCopy [ca1, ca2] =
   let t = mkTemp ti
@@ -224,12 +224,12 @@ normalizeCallPrologue _ (
     )
 
 normalizeCallPrologue _ (
-  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci@VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
   ca
   :
-  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji@(Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' && isVirtualCopy ca =
   let t = mkTemp ti
@@ -241,10 +241,10 @@ normalizeCallPrologue _ (
     )
 
 normalizeCallPrologue _ (
-  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci@VirtualCopy {
                                                 oVirtualCopyD = Register r})}
   :
-  j@SingleOperation {oOpr = Natural ji @ (Call {oCallUs = [Register r']})}
+  j@SingleOperation {oOpr = Natural ji@(Call {oCallUs = [Register r']})}
   :
   rest) (ti, _, _) | r == r' =
   let t = mkTemp ti
@@ -303,7 +303,7 @@ normalizeCallEpilogue _ (o : rest) _ = (rest, [o])
     -}
 
 extractReturnRegs _ (
-  c@SingleOperation {oOpr = Virtual (ci @ VirtualCopy {
+  c@SingleOperation {oOpr = Virtual (ci@VirtualCopy {
                                                 oVirtualCopyD = Register ret})}
   :
   r@SingleOperation {oOpr = Natural Branch {
@@ -393,7 +393,7 @@ addAlternativeInstructions o
 clobberRAInCall _ (
   c@SingleOperation {oOpr = Natural Call {}}
   :
-  f@SingleOperation {oOpr = Virtual fi @ (Fun {oFunctionUs = us})}
+  f@SingleOperation {oOpr = Virtual fi@(Fun {oFunctionUs = us})}
   :
   rest) (tid, oid, _) =
   let t = mkPreAssignedTemp tid (Register (TargetRegister RA))

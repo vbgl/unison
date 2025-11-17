@@ -83,7 +83,7 @@ isUsefulRematInOpr code (t, _) o
   | isPotentialUser t o && not (isFirstRealUser code t o) = True
   | otherwise = False
 
-addRemat p2cts f@Function {fCode = code} rt @ (t, _) =
+addRemat p2cts f@Function {fCode = code} rt@(t, _) =
     let fcode = flatten code
         ids   = (newOprIndex fcode, newOperIndex fcode, newTempIndex fcode)
         -- add rematerialization operations for each use

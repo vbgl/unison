@@ -78,7 +78,7 @@ mkMachineExtract sr mos =
   in mkMachineSingle (mkMachineVirtualOpc opcode) [] mos
 
 -- Produce a tree of combines recursively
-makeCombine d _ (left@[_], right @ [_]) =
+makeCombine d _ (left@[_], right@[_]) =
   let (low, high) = orderCombineOperands (left, right)
   in [mkMachineCombine [d, fst $ head low, fst $ head high]]
 makeCombine d id (left, right) =

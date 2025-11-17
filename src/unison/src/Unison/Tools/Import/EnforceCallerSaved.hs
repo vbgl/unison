@@ -39,7 +39,7 @@ addCallerSaved regInfo csr (code, t) i
     in (code', t')
   | otherwise = (code, t)
 
-addFunctionOperands us ds (bi@SingleOperation {oOpr = Virtual o @ Fun {}}) =
+addFunctionOperands us ds (bi@SingleOperation {oOpr = Virtual o@Fun {}}) =
   bi {oOpr = Virtual o {oFunctionUs = (oFunctionUs o) ++ us,
                          oFunctionDs = (oFunctionDs o) ++ ds}}
 
