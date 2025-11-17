@@ -59,7 +59,7 @@ nest loops loop =
 innerLoop l1 l2 = loopBlocks l1 `S.isSubsetOf` loopBlocks l2
 
 -- | Decrements nesting level by one
-decrementNest loop @ Loop {loopNesting = n} = loop {loopNesting = n - 1}
+decrementNest loop@Loop {loopNesting = n} = loop {loopNesting = n - 1}
 
 updateBlockNest blockNest Loop {loopBlocks = bs, loopNesting = n} =
   let b2n = map (\b -> (b, n)) (S.toList bs)

@@ -13,7 +13,7 @@ module Unison.Tools.Extend.CleanCongruences (cleanCongruences) where
 
 import Unison.Base
 
-cleanCongruences f @ Function {fCongruences = cs} _target =
+cleanCongruences f@Function {fCongruences = cs} _target =
     let cs' = filter (not . isReflexive) cs
     in f {fCongruences = cs'}
 
